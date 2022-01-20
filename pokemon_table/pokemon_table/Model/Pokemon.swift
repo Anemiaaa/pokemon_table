@@ -36,13 +36,3 @@ extension Pokemon: Codable {
         case url
     }
 }
-
-//// MARK: -
-//// MARK: Equatable
-//
-//extension Pokemon: Equatable {
-//
-//    public static func == (lhs: Pokemon, rhs: Pokemon) -> Bool {
-//        lhs.id == rhs.id
-//    }
-//}

@@ -17,11 +17,6 @@ class PokemonListTableCell: UITableViewCell, PokemonCell {
     
     // MARK: -
     // MARK: Overriden
-
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
     
     override func prepareForReuse() {
         super.prepareForReuse()

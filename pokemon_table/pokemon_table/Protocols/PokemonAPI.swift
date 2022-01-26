@@ -13,7 +13,7 @@ public protocol PokemonAPI {
     
     func features(pokemon: Pokemon, completion: @escaping F.PokemonCompletion<PokemonFeatures>)
     
-    func effect(of ability: PokemonAbility, completion: @escaping F.PokemonCompletion<AbilityEffects>)
+    func effect(of ability: PokemonAbility, completion: @escaping F.PokemonCompletion<EffectEntry>)
     
     func images(pokemon: Pokemon, imageType: PokemonImageTypes, completion: @escaping F.PokemonCompletion<Data>)
 }

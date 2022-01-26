@@ -20,3 +20,20 @@ extension UITableView {
         self.register(UINib(nibName: String(describing: cell), bundle: nil), forCellReuseIdentifier: cell.id())
     }
 }
+
+extension UIViewController {
+    
+    func showAlert(with error: Error) {
+        
+        let controller = UIAlertController(
+            title: "Network Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert)
+        
+        let okButton = UIAlertAction(title: "OK", style: .default, handler: nil)
+        
+        controller.addAction(okButton)
+        
+        self.present(controller, animated: true, completion: nil)
+    }
+}

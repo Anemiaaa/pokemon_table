@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import RxSwift
 
 public enum PokemonApiError: Error {
     
@@ -22,9 +23,15 @@ public class PokemonNetworkAPI: PokemonAPI {
     // MARK: -
     // MARK: Type Inferences
     
-    public enum Links {
+    private enum Links {
+        
         static let random = "https://pokeapi.co/api/v2/pokemon?limit="
     }
+
+    // MARK: -
+    // MARK: Variables
+    
+    private var imageCashe: [URL: Data] = [:]
     
     // MARK: -
     // MARK: Initialization
@@ -44,40 +51,45 @@ public class PokemonNetworkAPI: PokemonAPI {
             return
         }
 
-        NetworkHelper.data(dataType: NetworkDataNode<[Pokemon]>.self, url: url) { [weak self] result in
-            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
+        self.networkData(from: NetworkDataNode<[Pokemon]>.self, url: url) {
+            completion($0)
         }
     }
     
     public func features(pokemon: Pokemon, completion: @escaping F.PokemonCompletion<PokemonFeatures>) {
-        NetworkHelper.data(dataType: PokemonFeatures.self, url: pokemon.url) { [weak self] result in
-            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
+        self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
+            completion($0)
         }
     }
     
-    public func effect(of ability: PokemonAbility, completion: @escaping F.PokemonCompletion<AbilityEffects>) {
-        guard let urlString = ability.ability["url"], let url = URL(string: urlString) else {
-            completion(.failure(.urlInit))
-            return
-        }
-        
-        NetworkHelper.data(dataType: AbilityEffects.self, url: url) { [weak self] result in
-            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
+    public func effect(of ability: PokemonAbility, completion: @escaping F.PokemonCompletion<EffectEntry>) {
+        self.networkData(from: EffectEntry.self, url: ability.url) {
+            completion($0)
         }
     }
     
     public func images(pokemon: Pokemon, imageType: PokemonImageTypes, completion: @escaping F.PokemonCompletion<Data>) {
         self.features(pokemon: pokemon) { [weak self] result in
             switch result {
-                
             case .success(let pokemonFeatures):
                 guard let url = self?.url(from: pokemonFeatures, to: imageType) else {
                     completion(.failure(.imageNotExist))
                     return
                 }
+                if let image = self?.imageCashe[url] {
+                    completion(.success(image))
+                    return
+                }
 
                 NetworkHelper.image(url: url) { [weak self] result in
-                    completion(self?.lift(response: result) ?? .failure(.instanceDeath))
+                    switch result {
+                    case .success(let image):
+                        self?.imageCashe[url] = image
+                        
+                        completion(.success(image))
+                    case .failure(let error):
+                        completion(.failure(.networkError(error)))
+                    }
                 }
                 
             case .failure(let error):
@@ -95,6 +107,16 @@ public class PokemonNetworkAPI: PokemonAPI {
             return .success(value)
         case .failure(let error):
             return .failure(.networkError(error))
+        }
+    }
+    
+    private func networkData<T: Codable>(
+        from decodeDataType: T.Type,
+        url: URL,
+        completion: @escaping F.PokemonCompletion<T>)
+    {
+        NetworkHelper.data(dataType: decodeDataType.self, url: url) { [weak self] result in
+            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
         }
     }
     

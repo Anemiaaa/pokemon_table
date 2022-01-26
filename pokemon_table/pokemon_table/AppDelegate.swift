@@ -17,7 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let controller = PokemonsListVC(api: PokemonNetworkAPI())
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = controller
+    
+        let navigationController = UINavigationController(rootViewController: controller)
+        window.rootViewController = navigationController
         
         self.window = window
         self.window?.makeKeyAndVisible()

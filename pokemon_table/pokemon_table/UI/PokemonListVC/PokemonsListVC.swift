@@ -53,23 +53,6 @@ class PokemonsListVC: UIViewController, PokemonCustomTableView {
             self.tableView?.reloadData()
         }
     }
-    
-    // MARK: -
-    // MARK: Private
-    
-    private func showAlert(with error: Error) {
-        
-        let controller = UIAlertController(
-            title: "Network Error",
-            message: error.localizedDescription,
-            preferredStyle: .alert)
-        
-        let okButton = UIAlertAction(title: "OK", style: .default, handler: nil)
-        
-        controller.addAction(okButton)
-        
-        self.present(controller, animated: true, completion: nil)
-    }
         
     // MARK: -
     // MARK: Overriden
@@ -102,8 +85,7 @@ extension PokemonsListVC: UITableViewDataSource, UITableViewDelegate {
                 switch result {
                 case .success(let imageData):
                     cell.avatar?.image = UIImage(data: imageData)
-                    
-                    self?.tableView?.reloadRows(at: [indexPath], with: .automatic)
+                     
                 case .failure(let error):
                     self?.showAlert(with: error)
                 }
@@ -113,5 +95,11 @@ extension PokemonsListVC: UITableViewDataSource, UITableViewDelegate {
             return cell
         }
         return UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let controller = DetailPokemonVC(api: self.api, pokemon: self.pokemons[indexPath.row])
+        
+        self.navigationController?.pushViewController(controller, animated: true)
     }
 }

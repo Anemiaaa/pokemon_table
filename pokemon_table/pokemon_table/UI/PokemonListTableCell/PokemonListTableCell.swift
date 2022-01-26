@@ -21,7 +21,7 @@ class PokemonListTableCell: UITableViewCell, PokemonCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        self.avatar = nil
-        self.name = nil
+        self.avatar?.image = nil
+        self.name?.text = nil
     }
 }

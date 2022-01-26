@@ -15,18 +15,29 @@ public struct PokemonFeatures {
 
 public struct PokemonAbility: Codable {
     
-    public let ability: [String: String]
-}
+    public let name: String
+    public let url: URL
 
-public struct AbilityEffects {
-    
-    public let entry: EffectEntry
+    public init(from decoder: Decoder) throws {
+        let rawResponse = try RawPokemonAbility(from: decoder)
+        
+        self.name = rawResponse.ability.name
+        self.url = rawResponse.ability.url
+    }
 }
 
 public struct EffectEntry: Codable {
     
-    public let effect: String
-    public let language: [String: String]
+    public let entry: String?
+    
+    public init(from decoder: Decoder) throws {
+        let rawResponse = try RawEffect(from: decoder)
+        
+        let effect = rawResponse.effects
+            .first(where: { $0.language.name == "en" })
+        
+        self.entry = effect?.entry
+    }
 }
 
 extension PokemonFeatures: Codable {
@@ -38,10 +49,40 @@ extension PokemonFeatures: Codable {
     }
 }
 
-extension AbilityEffects: Codable {
+fileprivate struct RawPokemonAbility: Decodable {
+    
+    struct Ability: Decodable {
+        
+        let name: String
+        let url: URL
+    }
+    
+    let ability: Ability
+}
+
+fileprivate struct RawEffect: Decodable {
+    
+    let effects: [Effect]
     
     enum CodingKeys: String, CodingKey {
         
-        case entry = "effect_entries"
+        case effects = "effect_entries"
+    }
+    
+    struct Language: Decodable {
+        
+        let name: String
+    }
+    
+    struct Effect: Decodable {
+        
+        let entry: String
+        let language: Language
+        
+        enum CodingKeys: String, CodingKey {
+            
+            case entry = "effect"
+            case language
+        }
     }
 }

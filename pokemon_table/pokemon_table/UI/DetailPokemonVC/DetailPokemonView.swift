@@ -42,16 +42,13 @@ class DetailPokemonView: UIView {
         guard let view = self.stackView?.arrangedSubviews[index] else {
             return
         }
-        //let endProperty = view.alpha == 0.0 ? 1.0: 0.0
         let endProperty = view.isHidden == true ? false : true
         
         if animated {
             UIView.animate(withDuration: 0.5) {
-                //view.alpha = endProperty
                 view.isHidden = endProperty
             }
         } else {
-            //view.alpha = endProperty
             view.isHidden = endProperty
         }
     }

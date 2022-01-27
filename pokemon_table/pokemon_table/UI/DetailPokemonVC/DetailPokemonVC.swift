@@ -114,7 +114,7 @@ class DetailPokemonVC: UIViewController, RootViewGettable {
                     
                     label.text = effectEntry
                     label.numberOfLines = 0
-                    //label.isHidden = true
+
                     
                     self?.rootView?.stackView?.insertArrangedSubview(label, at: stackIndex)
                 } else {

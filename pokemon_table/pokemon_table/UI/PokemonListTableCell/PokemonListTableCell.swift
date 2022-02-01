@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PokemonListTableCell: UITableViewCell, PokemonCell {
+class PokemonListTableCell: UITableViewCell {
     
     // MARK: -
     // MARK: Variables

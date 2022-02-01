@@ -1,5 +1,5 @@
 //
-//  DetailPokemonVC.swift
+//  DetailPokemonViewController.swift
 //  pokemon_table
 //
 //  Created by mac on 21.01.2022.
@@ -13,7 +13,7 @@ enum DetailPokemonVCError: Error {
     case error(String)
 }
 
-class DetailPokemonVC: UIViewController, RootViewGettable {
+class DetailPokemonViewController: UIViewController, RootViewGettable, PresentableViewController {
     
     // MARK: -
     // MARK: Typealias
@@ -22,6 +22,8 @@ class DetailPokemonVC: UIViewController, RootViewGettable {
     
     // MARK: -
     // MARK: Variables
+    
+    public var delegate: NavigateViewControllerDelegate?
     
     private var api: PokemonAPI
     private var pokemon: Pokemon
@@ -57,7 +59,7 @@ class DetailPokemonVC: UIViewController, RootViewGettable {
                 {
                    guard let ability = self?.abilities?.first(where: { $0.name ==  label })
                     else {
-                        self?.showAlert(with: DetailPokemonVCError.error("Ablity doesnt exist"))
+                        self?.showAlert(title: "Error", message: "Ability doesnt exist")
                         return
                     }
                      
@@ -70,19 +72,23 @@ class DetailPokemonVC: UIViewController, RootViewGettable {
         }.disposed(by: disposeBag)
     }
     
-    private func switchedResult<T>(of result: F.PokemonResult<T>, success: (T) -> ()) {
+    private func switchedResult<T>(
+        of result: F.PokemonResult<T, PokemonApiError>,
+        success: (T) -> ()
+    )
+    {
         switch result {
         case .success(let features):
             success(features)
         case .failure(let error):
-            self.showAlert(with: error)
+            self.showAlert(title: "Network Error", error: error)
         }
     }
     
     private func setImageToView() {
-        self.api.images(pokemon: self.pokemon, imageType: .frontDefault) { [weak self] result in
+        self.api.image(pokemon: self.pokemon, imageType: .frontDefault) { [weak self] result in
             self?.switchedResult(of: result) { image in
-                self?.rootView?.imageView?.image = UIImage(data: image)
+                self?.rootView?.imageView?.image = image
             }
         }
     }
@@ -118,7 +124,7 @@ class DetailPokemonVC: UIViewController, RootViewGettable {
                     
                     self?.rootView?.stackView?.insertArrangedSubview(label, at: stackIndex)
                 } else {
-                    self?.showAlert(with: DetailPokemonVCError.error("Error effect entry"))
+                    self?.showAlert(title: "Error", message: "Couldnt find ability entry")
                 }
             })
         })

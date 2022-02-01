@@ -8,20 +8,25 @@
 import Foundation
 import UIKit
 
-public typealias NetworkResult<DataType: Codable> = Result<DataType, Error>
-public typealias NetworkResponse<DataType: Codable> = (NetworkResult<DataType>) -> ()
-
-public class NetworkHelper {
+public class NetworkHelper: Networking {
+    
     // MARK: -
     // MARK: Variables
     
-    static let session = URLSession.shared
+    private var session = URLSession.shared
+    
+    // MARK: -
+    // MARK: Initialization
+    
+    public init(session: URLSession) {
+        self.session = session
+    }
     
     // MARK: -
     // MARK: Public
     
     @discardableResult
-    public static func data<DataType: Codable>(
+    public func data<DataType: Codable>(
         dataType: DataType.Type,
         url: URL,
         completion: @escaping NetworkResponse<DataType>) -> URLSessionDataTask
@@ -54,7 +59,7 @@ public class NetworkHelper {
     }
     
     @discardableResult
-    public static func image(url: URL, completion: @escaping NetworkResponse<Data>) -> URLSessionDataTask {
+    public func image(url: URL, completion: @escaping NetworkResponse<Data>) -> URLSessionDataTask {
         let task = self.session.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else {
                 DispatchQueue.main.async {

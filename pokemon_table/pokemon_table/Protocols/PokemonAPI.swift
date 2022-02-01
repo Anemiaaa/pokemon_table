@@ -6,14 +6,18 @@
 //
 
 import Foundation
+import UIKit
 
 public protocol PokemonAPI {
+    
+    typealias PokemonResult<T> = Result<T, PokemonApiError>
+    typealias PokemonCompletion<T> = (PokemonResult<T>) -> ()
 
-    func pokemons(count: Int, completion: @escaping F.PokemonCompletion<NetworkDataNode<[Pokemon]>>)
+    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>)
     
-    func features(pokemon: Pokemon, completion: @escaping F.PokemonCompletion<PokemonFeatures>)
+    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>)
     
-    func effect(of ability: PokemonAbility, completion: @escaping F.PokemonCompletion<EffectEntry>)
+    func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>)
     
-    func images(pokemon: Pokemon, imageType: PokemonImageTypes, completion: @escaping F.PokemonCompletion<Data>)
+    func image(pokemon: Pokemon, imageType: PokemonImageTypes, completion: @escaping PokemonCompletion<UIImage>)
 }

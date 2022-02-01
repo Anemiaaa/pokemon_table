@@ -8,9 +8,8 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PokemonsListVC" customModule="pokemon_table" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PokemonListViewController" customModule="pokemon_table" customModuleProvider="target">
             <connections>
-                <outlet property="tableView" destination="ZFV-jC-wHq" id="hYh-6c-Jio"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -32,6 +31,9 @@
                 <constraint firstAttribute="bottom" secondItem="ZFV-jC-wHq" secondAttribute="bottom" id="SFd-zm-h2D"/>
                 <constraint firstItem="ZFV-jC-wHq" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="gdv-vM-gnr"/>
             </constraints>
+            <connections>
+                <outlet property="tableView" destination="ZFV-jC-wHq" id="4jw-rz-A6A"/>
+            </connections>
             <point key="canvasLocation" x="131.8840579710145" y="99.776785714285708"/>
         </view>
     </objects>

@@ -14,12 +14,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        let controller = PokemonsListVC(api: PokemonNetworkAPI())
-        
         let window = UIWindow(frame: UIScreen.main.bounds)
     
-        let navigationController = UINavigationController(rootViewController: controller)
+        let navigationController = UINavigationController()
         window.rootViewController = navigationController
+        
+        let coordinator = LandingCoordinator(navigationController: navigationController, api: PokemonNetworkAPI())
+        coordinator.start()
         
         self.window = window
         self.window?.makeKeyAndVisible()

@@ -86,9 +86,20 @@ class DetailPokemonViewController: UIViewController, RootViewGettable, Presentab
     }
     
     private func setImageToView() {
-        self.api.image(pokemon: self.pokemon, imageType: .frontDefault) { [weak self] result in
-            self?.switchedResult(of: result) { image in
-                self?.rootView?.imageView?.image = image
+        guard let imageSize = self.rootView?.imageView?.frame.size else {
+            self.showAlert(title: "Image error", message: nil)
+            return
+        }
+        self.api.features(pokemon: pokemon) { result in
+            switch result {
+            case .success(let features):
+                self.api.image(features: features, imageType: .frontDefault, size: imageSize) { [weak self] result in
+                    self?.switchedResult(of: result) { image in
+                        self?.rootView?.imageView?.image = image
+                    }
+                }
+            case .failure(let error):
+                self.showAlert(title: "Network Error", error: error)
             }
         }
     }

@@ -13,11 +13,17 @@ public protocol PokemonAPI {
     typealias PokemonResult<T> = Result<T, PokemonApiError>
     typealias PokemonCompletion<T> = (PokemonResult<T>) -> ()
 
-    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>)
+    @discardableResult
+    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> URLSessionDataTask?
     
-    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>)
+    @discardableResult
+    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> URLSessionDataTask?
     
-    func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>)
+    @discardableResult
+    func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> URLSessionDataTask?
     
-    func image(pokemon: Pokemon, imageType: PokemonImageTypes, completion: @escaping PokemonCompletion<UIImage>)
+    @discardableResult
+    func image(features: PokemonFeatures, imageType: PokemonImageTypes, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> URLSessionDataTask?
+    
+    func cancel(task: URLSessionDataTask)
 }

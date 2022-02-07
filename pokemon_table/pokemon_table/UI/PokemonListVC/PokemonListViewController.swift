@@ -22,15 +22,24 @@ class PokemonListViewController: UIViewController, RootViewGettable, Presentable
     
     public var delegate: NavigateViewControllerDelegate?
     
-    private let api: PokemonAPI
     private var pokemons: [Pokemon] = []
+    private var prefetchedTasks: Cacher<NSIndexPath, URLSessionDataTask>
+    private var prefetchedImages: Cacher<NSIndexPath, UIImage>
+    
+    private let api: PokemonAPI
     private let disposeBag = DisposeBag()
+    private let serialQueue = DispatchQueue(label: "Prefetch queue")
+    private let cellImageType = PokemonImageTypes.frontDefault
     
     // MARK: -
     // MARK: Initialization
     
     public init(api: PokemonAPI) {
         self.api = api
+        
+        self.prefetchedTasks = Cacher(config: ConfigCacher.default)
+        self.prefetchedImages = Cacher(config: ConfigCacher.default)
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -65,21 +74,96 @@ class PokemonListViewController: UIViewController, RootViewGettable, Presentable
             case .pokemons(let completion):
                 completion(self?.pokemons ?? [])
                 
-            case .image(pokemon: let pokemon, imageType: let imageType, let completion):
-                self?.api.image(pokemon: pokemon, imageType: imageType) { [weak self] result in
-                    switch result {
-                    case .success(let image):
-                         completion(image)
-                    case .failure(let error):
-                        self?.showAlert(title: "Network Error", error: error)
+            case .image(indexPath: let indexPath, let imageSize, let completion):
+                self?.imageBind(indexPath: indexPath, imageSize: imageSize, completion: completion)
+
+            case .prefetch(indexPaths: let indexPaths, imageSize: let size):
+                self?.prefetch(indexPaths: indexPaths, imageSize: size)
+                
+            case .stopLoadAt(indexPaths: let indexPaths):
+                indexPaths.forEach { [weak self] index in
+                    if let task = self?.prefetchedTasks.cachedData(for: index as NSIndexPath) {
+                        self?.api.cancel(task: task)
+                        
+                        self?.prefetchedTasks.remove(for: index as NSIndexPath)
                     }
                 }
+
             case .clickOn(indexRow: let indexRow):
                 self?.delegate?.navigateToNextPage(self?.pokemons[indexRow])
             }
         }.disposed(by: self.disposeBag)
     }
         
+    // MARK: -
+    // MARK: Private
+    
+    private func switchResult<T, Error>(result: Result<T, Error>) -> T? {
+        switch result {
+        case .success(let value):
+             return value
+        case .failure(let error):
+            self.showAlert(title: "Error", error: error)
+            return nil
+        }
+    }
+    
+    private func prefetch(indexPaths: [IndexPath], imageSize: CGSize) {
+        indexPaths.forEach { [weak self] index in
+            self?.serialQueue.async {
+                guard let pokemon = self?.pokemons[index.row] else {
+                    self?.showAlert(title: "Error", message: "Cannot prefetch data")
+                    return
+                }
+                self?.api.features(pokemon: pokemon, completion: { result in
+                    switch result {
+                    case .success(let features):
+                        if let task = self?.api.image(
+                         features: features,
+                         imageType: self?.cellImageType ?? .frontDefault,
+                         size: imageSize,
+                         completion: { [weak self] result in
+                             self?.prefetchedImages.insert(
+                                 value: self?.switchResult(result: result) ?? UIImage(),
+                                 for: index as NSIndexPath
+                             )
+                         })
+                        {
+                            self?.prefetchedTasks.insert(value: task, for: index as NSIndexPath)
+                        }
+                    case .failure(let error):
+                        self?.showAlert(title: "Network Error", error: error)
+                    }
+                })
+            }
+        }
+    }
+    
+    private func imageBind(indexPath: IndexPath, imageSize: CGSize, completion: @escaping (UIImage) -> ()) {
+        let pokemon = self.pokemons[indexPath.row]
+
+        if let image = self.prefetchedImages.cachedData(for: indexPath as NSIndexPath) {
+            DispatchQueue.main.async {
+                completion(image)
+            }
+        } else {
+            self.api.features(pokemon: pokemon, completion: { [weak self] result in
+                switch result {
+                case .success(let features):
+                    self?.api.image(
+                        features: features,
+                        imageType: self?.cellImageType ?? .frontDefault,
+                        size: imageSize
+                    ) {
+                        completion(self?.switchResult(result: $0) ?? UIImage())
+                    }
+                case .failure(let error):
+                    self?.showAlert(title: "Network Error", error: error)
+                }
+            })
+        }
+    }
+    
     // MARK: -
     // MARK: Overriden
     

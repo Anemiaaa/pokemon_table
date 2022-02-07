@@ -19,7 +19,7 @@
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="09U-Yn-7ng">
                         <rect key="frame" x="12" y="12" width="75" height="75"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="75" id="bUN-ge-XCy"/>
+                            <constraint firstAttribute="width" secondItem="09U-Yn-7ng" secondAttribute="height" multiplier="1:1" id="ofV-Gb-Mrc"/>
                             <constraint firstAttribute="height" constant="75" id="rA0-Tf-Fj2"/>
                         </constraints>
                     </imageView>
@@ -44,7 +44,7 @@
                 <outlet property="avatar" destination="09U-Yn-7ng" id="0Qp-nS-m7e"/>
                 <outlet property="name" destination="p8m-vf-MEv" id="6V2-of-L2b"/>
             </connections>
-            <point key="canvasLocation" x="190.57971014492756" y="117.52232142857142"/>
+            <point key="canvasLocation" x="32.608695652173914" y="108.81696428571428"/>
         </tableViewCell>
     </objects>
 </document>

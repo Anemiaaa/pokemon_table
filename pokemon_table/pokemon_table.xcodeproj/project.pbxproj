@@ -11,10 +11,11 @@
 		04536530279AF2CB00DE9288 /* DetailPokemonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0453652E279AF2CB00DE9288 /* DetailPokemonViewController.swift */; };
 		04536531279AF2CB00DE9288 /* DetailPokemonViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0453652F279AF2CB00DE9288 /* DetailPokemonViewController.xib */; };
 		04549E3227998C2D006238F1 /* PokemonImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04549E3127998C2D006238F1 /* PokemonImages.swift */; };
-		0454F08427A81CD400029CF9 /* ImageCacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0454F08327A81CD400029CF9 /* ImageCacher.swift */; };
+		0454F08427A81CD400029CF9 /* Cacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0454F08327A81CD400029CF9 /* Cacher.swift */; };
 		045637EB279063F0002C4015 /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045637EA279063F0002C4015 /* NetworkHelper.swift */; };
 		045637ED27906428002C4015 /* NetworkDataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045637EC27906428002C4015 /* NetworkDataNode.swift */; };
-		045B240B27A9621A0026585E /* ImageCachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B240A27A9621A0026585E /* ImageCachable.swift */; };
+		0456D03827B139E300DC033F /* ImageCacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0456D03727B139E300DC033F /* ImageCacher.swift */; };
+		045B240B27A9621A0026585E /* Cachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B240A27A9621A0026585E /* Cachable.swift */; };
 		045B240D27A967540026585E /* Coordinatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B240C27A967540026585E /* Coordinatable.swift */; };
 		045B241027A968770026585E /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B240F27A968770026585E /* UIViewControllerExtension.swift */; };
 		045B241227A968D00026585E /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B241127A968D00026585E /* UIImageExtension.swift */; };
@@ -47,10 +48,11 @@
 		0453652E279AF2CB00DE9288 /* DetailPokemonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailPokemonViewController.swift; sourceTree = "<group>"; };
 		0453652F279AF2CB00DE9288 /* DetailPokemonViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DetailPokemonViewController.xib; sourceTree = "<group>"; };
 		04549E3127998C2D006238F1 /* PokemonImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonImages.swift; sourceTree = "<group>"; };
-		0454F08327A81CD400029CF9 /* ImageCacher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacher.swift; sourceTree = "<group>"; };
+		0454F08327A81CD400029CF9 /* Cacher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cacher.swift; sourceTree = "<group>"; };
 		045637EA279063F0002C4015 /* NetworkHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
 		045637EC27906428002C4015 /* NetworkDataNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDataNode.swift; sourceTree = "<group>"; };
-		045B240A27A9621A0026585E /* ImageCachable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCachable.swift; sourceTree = "<group>"; };
+		0456D03727B139E300DC033F /* ImageCacher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacher.swift; sourceTree = "<group>"; };
+		045B240A27A9621A0026585E /* Cachable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cachable.swift; sourceTree = "<group>"; };
 		045B240C27A967540026585E /* Coordinatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinatable.swift; sourceTree = "<group>"; };
 		045B240F27A968770026585E /* UIViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtension.swift; sourceTree = "<group>"; };
 		045B241127A968D00026585E /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
@@ -126,7 +128,8 @@
 			isa = PBXGroup;
 			children = (
 				0469378C2795A7E1001BC543 /* PokemonNetworkAPI.swift */,
-				0454F08327A81CD400029CF9 /* ImageCacher.swift */,
+				0454F08327A81CD400029CF9 /* Cacher.swift */,
+				0456D03727B139E300DC033F /* ImageCacher.swift */,
 				045B241527A970740026585E /* LandingCoordinator.swift */,
 			);
 			path = Classes;
@@ -157,7 +160,7 @@
 				046C1B5D279F07B7005997C2 /* RootViewGettable.swift */,
 				0469379C2796FCC0001BC543 /* PokemonAPI.swift */,
 				046DA17627A45AB600745D6B /* Networking.swift */,
-				045B240A27A9621A0026585E /* ImageCachable.swift */,
+				045B240A27A9621A0026585E /* Cachable.swift */,
 				045B241C27A978220026585E /* Coordinator */,
 			);
 			path = Protocols;
@@ -393,7 +396,7 @@
 				04948F8A27977A3100FC4890 /* PokemonListTableCell.swift in Sources */,
 				04549E3227998C2D006238F1 /* PokemonImages.swift in Sources */,
 				045637ED27906428002C4015 /* NetworkDataNode.swift in Sources */,
-				0454F08427A81CD400029CF9 /* ImageCacher.swift in Sources */,
+				0454F08427A81CD400029CF9 /* Cacher.swift in Sources */,
 				045B242027A996F20026585E /* ConfigCasher.swift in Sources */,
 				045B241627A970740026585E /* LandingCoordinator.swift in Sources */,
 				045637EB279063F0002C4015 /* NetworkHelper.swift in Sources */,
@@ -403,10 +406,11 @@
 				046C1B5E279F07B8005997C2 /* RootViewGettable.swift in Sources */,
 				045B241227A968D00026585E /* UIImageExtension.swift in Sources */,
 				046C1B61279F127A005997C2 /* DetailPokemonView.swift in Sources */,
+				0456D03827B139E300DC033F /* ImageCacher.swift in Sources */,
 				046DA17727A45AB600745D6B /* Networking.swift in Sources */,
 				045B241A27A977AF0026585E /* PresentableViewController.swift in Sources */,
 				04948F9227978D8200FC4890 /* Extensions.swift in Sources */,
-				045B240B27A9621A0026585E /* ImageCachable.swift in Sources */,
+				045B240B27A9621A0026585E /* Cachable.swift in Sources */,
 				046C9757278F3954009EDA74 /* AppDelegate.swift in Sources */,
 				046937912795AE39001BC543 /* PokemonFeatures.swift in Sources */,
 			);

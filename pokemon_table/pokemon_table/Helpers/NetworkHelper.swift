@@ -8,12 +8,13 @@
 import Foundation
 import UIKit
 
-public class NetworkHelper: Networking {
+public class NetworkHelper: NSObject, Networking {
     
     // MARK: -
     // MARK: Variables
     
     private var session = URLSession.shared
+    private var dataTasks: [URLSessionDataTask] = []
     
     // MARK: -
     // MARK: Initialization
@@ -51,9 +52,8 @@ public class NetworkHelper: Networking {
             }
             
         }
-        
         task.resume()
-        
+        self.dataTasks.append(task)
         
         return task
     }
@@ -73,7 +73,27 @@ public class NetworkHelper: Networking {
         }
         
         task.resume()
+        self.dataTasks.append(task)
         
         return task
+    }
+    
+    public func cancel(task: URLSessionDataTask) {
+        guard let index = self.dataTasks.firstIndex(where: { $0 == task }) else {
+            return
+        }
+        self.dataTasks[index].cancel()
+
+        self.dataTasks.remove(at: index)
+    }
+}
+
+extension NetworkHelper: URLSessionDataDelegate {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        guard let index = self.dataTasks.firstIndex(where: { $0 == dataTask }) else {
+            return
+        }
+        
+        self.dataTasks.remove(at: index)
     }
 }

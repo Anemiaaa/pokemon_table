@@ -8,13 +8,12 @@
 import Foundation
 import UIKit
 
-public class NetworkHelper: NSObject, Networking {
+public class NetworkHelper: Networking {
     
     // MARK: -
     // MARK: Variables
     
     private var session = URLSession.shared
-    private var dataTasks: [URLSessionDataTask] = []
     
     // MARK: -
     // MARK: Initialization
@@ -32,7 +31,6 @@ public class NetworkHelper: NSObject, Networking {
         url: URL,
         completion: @escaping NetworkResponse<DataType>) -> URLSessionDataTask
     {
-        
         let task = self.session.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else {
                 completion(.failure(error!))
@@ -53,7 +51,6 @@ public class NetworkHelper: NSObject, Networking {
             
         }
         task.resume()
-        self.dataTasks.append(task)
         
         return task
     }
@@ -73,27 +70,8 @@ public class NetworkHelper: NSObject, Networking {
         }
         
         task.resume()
-        self.dataTasks.append(task)
         
         return task
     }
-    
-    public func cancel(task: URLSessionDataTask) {
-        guard let index = self.dataTasks.firstIndex(where: { $0 == task }) else {
-            return
-        }
-        self.dataTasks[index].cancel()
 
-        self.dataTasks.remove(at: index)
-    }
-}
-
-extension NetworkHelper: URLSessionDataDelegate {
-    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        guard let index = self.dataTasks.firstIndex(where: { $0 == dataTask }) else {
-            return
-        }
-        
-        self.dataTasks.remove(at: index)
-    }
 }

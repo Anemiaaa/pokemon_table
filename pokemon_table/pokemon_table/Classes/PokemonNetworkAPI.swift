@@ -104,10 +104,6 @@ public class PokemonNetworkAPI: PokemonAPI {
         }
     }
     
-    public func cancel(task: URLSessionDataTask) {
-        self.networkHelper.cancel(task: task)
-    }
-    
     // MARK: -
     // MARK: Private
 

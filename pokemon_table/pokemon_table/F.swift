@@ -9,6 +9,8 @@ import Foundation
 import RxSwift
 
 public enum F {
+    
+    public typealias Handler<T> = (T) -> ()
 
     typealias PokemonResult<T, ErrorType: Error> = (Result<T, ErrorType>)
     typealias PokemonCompletion<T, ErrorType: Error> = (PokemonResult<T, ErrorType>) -> ()

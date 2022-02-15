@@ -16,12 +16,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
     
-        let navigationController = UINavigationController()
-        window.rootViewController = navigationController
+        let coordinator = LandingCoordinator(api: PokemonNetworkAPI())
         
-        let coordinator = LandingCoordinator(navigationController: navigationController, api: PokemonNetworkAPI())
-        coordinator.start()
-        
+        window.rootViewController = coordinator.navigationController
+
         self.window = window
         self.window?.makeKeyAndVisible()
         

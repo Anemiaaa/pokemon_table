@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-protocol RootViewGettable {
+public protocol RootViewGettable: AnyObject {
     
     associatedtype View: UIView
     

@@ -13,7 +13,7 @@ public enum States {
     case abilityButtonClick(label: String, index: Int)
 }
 
-class DetailPokemonView: UIView {
+class DetailPokemonView: UIView, BaseView {
     
     // MARK: -
     // MARK: Variables
@@ -27,6 +27,10 @@ class DetailPokemonView: UIView {
     
     // MARK: -
     // MARK: Public
+    
+    public func configure() {
+        //
+    }
     
     public func display(button: UIButton) {
         button.addTarget(

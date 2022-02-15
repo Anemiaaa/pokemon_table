@@ -13,8 +13,8 @@ enum DetailPokemonVCError: Error {
     case error(String)
 }
 
-class DetailPokemonViewController: UIViewController, RootViewGettable, PresentableViewController {
-    
+class DetailPokemonViewController: BaseViewController<DetailPokemonViewController>, RootViewGettable {
+
     // MARK: -
     // MARK: Typealias
     
@@ -22,8 +22,6 @@ class DetailPokemonViewController: UIViewController, RootViewGettable, Presentab
     
     // MARK: -
     // MARK: Variables
-    
-    public var delegate: NavigateViewControllerDelegate?
     
     private var api: PokemonAPI
     private var pokemon: Pokemon
@@ -42,6 +40,20 @@ class DetailPokemonViewController: UIViewController, RootViewGettable, Presentab
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: -
+    // MARK: ViewLifeCicle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        self.rootView?.name?.text = self.pokemon.name
+        
+        self.setImageToView()
+        self.setAbilitiesToView { self.abilities = $0 }
+        
+        self.prepareObserving()
     }
     
     // MARK: -
@@ -139,20 +151,6 @@ class DetailPokemonViewController: UIViewController, RootViewGettable, Presentab
                 }
             })
         })
-    }
-    
-    // MARK: -
-    // MARK: Overriden
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        self.rootView?.name?.text = self.pokemon.name
-        
-        self.setImageToView()
-        self.setAbilitiesToView { self.abilities = $0 }
-        
-        self.prepareObserving()
     }
 }
 

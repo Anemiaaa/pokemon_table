@@ -8,45 +8,59 @@
 import Foundation
 import UIKit
 
-public class LandingCoordinator: Coordinatable {
+public class LandingCoordinator: BaseCoordinator {
     
     // MARK: -
     // MARK: Variables
     
-    public var childCoordinators: [Coordinatable] = []
-    public let navigationController: UINavigationController
     
     private let api: PokemonAPI
-    private weak var viewController: UIViewController?
+    private var controllers: [UIViewController] = []
     
     // MARK: -
     // MARK: Initialization
     
-    public required init(navigationController: UINavigationController, api: PokemonAPI) {
-        self.navigationController = navigationController
+    public required init(api: PokemonAPI) {
         self.api = api
+        
+        super.init()
     }
     
-    public func start() {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: -
+    // MARK: Public
+    
+    override public func start() {
         let landingViewController = PokemonListViewController(api: self.api)
-        self.viewController = landingViewController
+        self.controllers.append(landingViewController)
+      
+        self.prepareObserving()
         
-        landingViewController.delegate = self
-        
-        self.navigationController.viewControllers = [landingViewController]
+        self.navigationController?.pushViewController(landingViewController, animated: true)
     }
-}
-
-extension LandingCoordinator: NavigateViewControllerDelegate {
     
-    public func navigateToNextPage(_ data: Any?) {
-        guard let pokemon = data as? Pokemon else {
-            self.viewController?.showAlert(title: "Error data", message: nil)
-            return
-        }
-        let nextController = DetailPokemonViewController(api: self.api, pokemon: pokemon)
-        nextController.delegate = self
+    // MARK: -
+    // MARK: Private
+    
+    private func prepareObserving() {
         
-        self.navigationController.pushViewController(nextController, animated: true)
+        self.controllers.forEach{ controller in
+            if let controller = controller as? PokemonListViewController {
+                controller.coordinator.bind(onNext: { [weak self] states in
+                    switch states {
+                    case .detail(pokemon: let pokemon):
+                        if let api = self?.api {
+                            let detailController = DetailPokemonViewController(api: api, pokemon: pokemon)
+                            
+                            self?.navigationController?.pushViewController(detailController, animated: true)
+                        }
+                    }
+                })
+            }
+        }
     }
+    
 }

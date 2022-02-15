@@ -24,6 +24,4 @@ public protocol PokemonAPI {
     
     @discardableResult
     func image(features: PokemonFeatures, imageType: PokemonImageTypes, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> URLSessionDataTask?
-    
-    func cancel(task: URLSessionDataTask)
 }

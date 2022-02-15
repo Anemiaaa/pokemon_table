@@ -17,6 +17,4 @@ public protocol Networking {
     
     @discardableResult
     func image(url: URL, completion: @escaping NetworkResponse<Data>) -> URLSessionDataTask
-    
-    func cancel(task: URLSessionDataTask)
 }

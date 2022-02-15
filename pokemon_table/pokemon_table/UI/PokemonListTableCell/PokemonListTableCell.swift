@@ -7,7 +7,12 @@
 
 import UIKit
 
-class PokemonListTableCell: UITableViewCell {
+public enum PokemonListCellEvents {
+    
+    case image(size: CGSize, completion: (UIImage) -> ())
+}
+
+class PokemonListTableCell: BaseCell<Pokemon, PokemonListCellEvents> {
     
     // MARK: -
     // MARK: Variables
@@ -16,12 +21,23 @@ class PokemonListTableCell: UITableViewCell {
     @IBOutlet weak var name: UILabel?
     
     // MARK: -
-    // MARK: Overriden
+    // MARK: Cell Life Cycle
     
     override func prepareForReuse() {
         super.prepareForReuse()
         
         self.avatar?.image = nil
         self.name?.text = nil
+    }
+    
+    // MARK: -
+    // MARK: Overriden
+    
+    override func fill(with model: Pokemon) {
+        self.name?.text = model.name
+        
+        self.eventHandler?(.image(size: self.avatar!.frame.size, completion: {
+            self.avatar?.image = $0
+        }))
     }
 }

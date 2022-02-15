@@ -12,102 +12,67 @@ public enum PokemonListViewStates {
     
     case pokemons(_ completion: ([Pokemon]) -> ())
     
-    case image(indexPath: IndexPath, imageSize: CGSize, _ completion: (UIImage) -> ())
-    
-    case prefetch(indexPaths: [IndexPath], imageSize: CGSize)
-    
-    case stopLoadAt(indexPaths: [IndexPath])
+    case image(indexPaths: [IndexPath], imageSize: CGSize, _ completion: ((UIImage) -> ())?)
     
     case clickOn(indexRow: Int)
 }
 
-class PokemonListView: UIView {
+class PokemonListView: UIView, BaseView {
 
     // MARK: -
     // MARK: Variables
     
     public let statesHandler = PublishSubject<PokemonListViewStates>()
     
-    private var prefetchedImages: [IndexPath: UIImage] = [:]
-    
     @IBOutlet weak var tableView: UITableView?
     
+    private lazy var adapter: TableAdapter = {
+        TableAdapter(tableView: self.tableView, cells: [PokemonListTableCell.self])
+    }()
+    
     // MARK: -
-    // MARK: Overriden
+    // MARK: Public
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-        self.tableView?.delegate = self
-        self.tableView?.dataSource = self
-        self.tableView?.prefetchDataSource = self
-        
-        self.tableView?.register(cell: PokemonListTableCell.self)
-        
-        self.tableView?.estimatedRowHeight = 100
+    public func configure() {
+        self.prepareObserving()
     }
-
-}
-
-extension PokemonListView: UITableViewDataSource {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var count = 0
-        
-        self.statesHandler.onNext(.pokemons({
-            count = $0.count
+    public func update() {
+        self.statesHandler.onNext(.pokemons({ pokemons in
+            let section = Section(cell: PokemonListTableCell.self, models: pokemons)
+            self.adapter.sections.append(section)
+            
         }))
-        
-        return count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell = self.tableView?.dequeueReusableCell(
-            withIdentifier: PokemonListTableCell.id(),
-            for: indexPath)
-            as? PokemonListTableCell
-        {
+    // MARK: -
+    // MARK: Private
+    
+    private func handle(events: TableEvents) {
+        switch events {
+        case .didSelect(indexPath: let indexPath):
+            self.statesHandler.onNext(.clickOn(indexRow: indexPath.row))
             
-            self.statesHandler.onNext(.pokemons({ cell.name?.text = $0[indexPath.row].name }))
+            self.tableView?.deselectRow(at: indexPath, animated: true)
             
-            if let size = cell.avatar?.frame.size {
-                self.statesHandler.onNext(.image(
-                    indexPath: indexPath,
-                    imageSize: size,
-                    { cell.avatar?.image = $0 }
-                ))
+        case .handleCellEvents(at: let indexPath, events: let events):
+            if let events = events as? PokemonListCellEvents {
+                switch events {
+                case .image(let size, let completion):
+                    self.statesHandler.onNext(.image(indexPaths: [indexPath], imageSize: size, { image in
+                        completion(image)
+                    }))
+                }
             }
-            
-            return cell
-        }
-        return UITableViewCell()
-    }
-}
-
-extension PokemonListView: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.statesHandler.onNext(.clickOn(indexRow: indexPath.row))
-        
-        self.tableView?.deselectRow(at: indexPath, animated: true)
-    }
-    
-    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        self.statesHandler.onNext(.stopLoadAt(indexPaths: [indexPath]))
-    }
-}
-
-extension PokemonListView: UITableViewDataSourcePrefetching {
-    
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        if let cell = self.tableView?.visibleCells[0] as? PokemonListTableCell,
-           let size = cell.avatar?.frame.size
-        {
-            self.statesHandler.onNext(.prefetch(indexPaths: indexPaths, imageSize: size))
         }
     }
     
-    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        self.statesHandler.onNext(.stopLoadAt(indexPaths: indexPaths))
+    private func prepareObserving() {
+        self.adapter.statesHandler.bind { [weak self] events in
+            self?.handle(events: events)
+        }
     }
 }
+
+
 

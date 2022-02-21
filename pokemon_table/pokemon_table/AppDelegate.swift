@@ -11,16 +11,27 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var navigationContainer: UINavigationController?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-    
-        let coordinator = LandingCoordinator(api: PokemonNetworkAPI())
         
-        window.rootViewController = coordinator.navigationController
+        let api = PokemonNetworkAPI(
+            network: NetworkHelper(session: URLSession.shared),
+            imageCacher: ImageCacher(config: ConfigCacher.default)
+        )
+        
+        let navigation = NavigationControllerContainer<LandingCoordinator>()
+        let coordinator = LandingCoordinator(api: api, navigationController: navigation)
+        
+        navigation.presenter = coordinator
+        
+        window.rootViewController = navigation
 
+        self.navigationContainer = navigation
         self.window = window
+        
         self.window?.makeKeyAndVisible()
         
         return true

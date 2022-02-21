@@ -17,7 +17,7 @@ public protocol RootViewGettable: AnyObject {
 
 extension RootViewGettable where Self: UIViewController {
     
-    var rootView: View? {
+    public var rootView: View? {
         return self.viewIfLoaded as? View
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import RxSwift
 
 public class LandingCoordinator: BaseCoordinator {
     
@@ -15,15 +16,16 @@ public class LandingCoordinator: BaseCoordinator {
     
     
     private let api: PokemonAPI
+    private let disposeBag = DisposeBag()
     private var controllers: [UIViewController] = []
     
     // MARK: -
     // MARK: Initialization
     
-    public required init(api: PokemonAPI) {
+    public required init(api: PokemonAPI, navigationController: UINavigationController) {
         self.api = api
         
-        super.init()
+        super.init(navigationController: navigationController)
     }
     
     required init?(coder: NSCoder) {
@@ -39,7 +41,7 @@ public class LandingCoordinator: BaseCoordinator {
       
         self.prepareObserving()
         
-        self.navigationController?.pushViewController(landingViewController, animated: true)
+        self.navigation.pushViewController(landingViewController, animated: true)
     }
     
     // MARK: -
@@ -55,12 +57,11 @@ public class LandingCoordinator: BaseCoordinator {
                         if let api = self?.api {
                             let detailController = DetailPokemonViewController(api: api, pokemon: pokemon)
                             
-                            self?.navigationController?.pushViewController(detailController, animated: true)
+                            self?.navigation.pushViewController(detailController, animated: true)
                         }
                     }
-                })
+                }).disposed(by: self.disposeBag)
             }
         }
     }
-    
 }

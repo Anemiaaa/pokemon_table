@@ -13,12 +13,7 @@ enum DetailPokemonVCError: Error {
     case error(String)
 }
 
-class DetailPokemonViewController: BaseViewController<DetailPokemonViewController>, RootViewGettable {
-
-    // MARK: -
-    // MARK: Typealias
-    
-    typealias View = DetailPokemonView
+class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
     
     // MARK: -
     // MARK: Variables

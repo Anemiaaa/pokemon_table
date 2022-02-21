@@ -9,13 +9,13 @@ import Foundation
 import UIKit
 import RxSwift
 
-public class BaseViewController<T>: UIViewController where T: RootViewGettable, T.View: BaseView {
+public class BaseViewController<T: BaseView>: UIViewController, RootViewGettable {
+    
+    public typealias View = T
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let self = self as? T {
-            self.rootView?.configure()
-        }
+        self.rootView?.configure()
     }
 }

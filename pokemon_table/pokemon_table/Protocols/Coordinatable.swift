@@ -18,12 +18,20 @@ public protocol Coordinatable: UIViewController {
 
 public class BaseCoordinator: UIViewController, Coordinatable {
     
+    // MARK: -
+    // MARK: Variables
+    
     public var childCoordinators: [Coordinatable] = []
+    
+    public let navigation: UINavigationController
+
+    // MARK: -
+    // MARK: Initialization
+    
+    public init(navigationController: UINavigationController) {
+        self.navigation = navigationController
         
-    init() {
         super.init(nibName: nil, bundle: nil)
-        
-        UINavigationController(rootViewController: self)
         
         self.start()
     }
@@ -31,6 +39,9 @@ public class BaseCoordinator: UIViewController, Coordinatable {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: -
+    // MARK: Public
     
     public func start() {
         fatalError("start() has not been implemented")

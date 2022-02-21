@@ -31,13 +31,13 @@ public class PokemonNetworkAPI: PokemonAPI {
     // MARK: -
     // MARK: Variables
     
-    private var networkHelper: Networking
-    private var imageCashe: ImageCacher
+    private let networkHelper: Networking
+    private let imageCashe: ImageCacher
     
     // MARK: -
     // MARK: Initialization
     
-    public init() {
+    public init(network: Networking, imageCacher: ImageCacher) {
         self.networkHelper = NetworkHelper(session: URLSession.shared)
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
     }

@@ -24,6 +24,8 @@ class PokemonListView: UIView, BaseView {
     
     public let statesHandler = PublishSubject<PokemonListViewStates>()
     
+    private let disposeBag = DisposeBag()
+    
     @IBOutlet weak var tableView: UITableView?
     
     private lazy var adapter: TableAdapter = {
@@ -70,7 +72,7 @@ class PokemonListView: UIView, BaseView {
     private func prepareObserving() {
         self.adapter.statesHandler.bind { [weak self] events in
             self?.handle(events: events)
-        }
+        }.disposed(by: self.disposeBag)
     }
 }
 

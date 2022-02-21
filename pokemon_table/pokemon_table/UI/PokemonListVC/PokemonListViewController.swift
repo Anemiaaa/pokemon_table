@@ -14,20 +14,14 @@ public enum PokemonListControllerStates {
     case detail(pokemon: Pokemon)
 }
 
-class PokemonListViewController: BaseViewController<PokemonListViewController>, RootViewGettable {
+class PokemonListViewController: BaseViewController<PokemonListView> {
 
-    // MARK: -
-    // MARK: Typealias
-    
-    typealias View = PokemonListView
-    
     // MARK: -
     // MARK: Variables
     
     public let coordinator = PublishSubject<PokemonListControllerStates>()
     
     private var pokemons: [Pokemon] = []
-    private var prefetchedImages: Cacher<NSIndexPath, UIImage>
     
     private let api: PokemonAPI
     private let disposeBag = DisposeBag()
@@ -38,8 +32,6 @@ class PokemonListViewController: BaseViewController<PokemonListViewController>, 
     
     public init(api: PokemonAPI) {
         self.api = api
-        
-        self.prefetchedImages = Cacher(config: ConfigCacher.default)
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -116,29 +108,21 @@ class PokemonListViewController: BaseViewController<PokemonListViewController>, 
             let pokemon = self.pokemons[index.row]
 
             DispatchQueue.global().async {
-                if let image = self.prefetchedImages.cachedData(for: index as NSIndexPath) {
-                    DispatchQueue.main.async {
+                self.api.features(pokemon: pokemon, completion: { [weak self] result in
+                    guard let features = self?.switchResult(result: result) else {
+                        return
+                    }
+                    
+                    self?.api.image(
+                        features: features,
+                        imageType: self?.cellImageType ?? .frontDefault,
+                        size: imageSize
+                    ) { result in
+                        let image = self?.switchResult(result: result) ?? UIImage()
+                        
                         completion?(image)
                     }
-                } else {
-                    self.api.features(pokemon: pokemon, completion: { [weak self] result in
-                        guard let features = self?.switchResult(result: result) else {
-                            return
-                        }
-                        
-                        self?.api.image(
-                            features: features,
-                            imageType: self?.cellImageType ?? .frontDefault,
-                            size: imageSize
-                        ) { result in
-                            let image = self?.switchResult(result: result) ?? UIImage()
-                            
-                            self?.prefetchedImages.insert(value: image, for: index as NSIndexPath)
-                            
-                            completion?(image)
-                        }
-                    })
-                }
+                })
             }
         }
     }

@@ -23,7 +23,7 @@ public class BaseCoordinator: UIViewController, Coordinatable {
     
     public var childCoordinators: [Coordinatable] = []
     
-    public let navigation: UINavigationController
+    public weak var navigation: UINavigationController?
 
     // MARK: -
     // MARK: Initialization

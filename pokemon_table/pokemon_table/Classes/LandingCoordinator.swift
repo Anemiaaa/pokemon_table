@@ -41,7 +41,7 @@ public class LandingCoordinator: BaseCoordinator {
       
         self.prepareObserving()
         
-        self.navigation.pushViewController(landingViewController, animated: true)
+        self.navigation?.pushViewController(landingViewController, animated: true)
     }
     
     // MARK: -
@@ -57,7 +57,7 @@ public class LandingCoordinator: BaseCoordinator {
                         if let api = self?.api {
                             let detailController = DetailPokemonViewController(api: api, pokemon: pokemon)
                             
-                            self?.navigation.pushViewController(detailController, animated: true)
+                            self?.navigation?.pushViewController(detailController, animated: true)
                         }
                     }
                 }).disposed(by: self.disposeBag)

@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             imageCacher: ImageCacher(config: ConfigCacher.default)
         )
         
-        let navigation = NavigationControllerContainer<LandingCoordinator>()
+        let navigation = NavigationControllerContainer()
         let coordinator = LandingCoordinator(api: api, navigationController: navigation)
         
         navigation.presenter = coordinator

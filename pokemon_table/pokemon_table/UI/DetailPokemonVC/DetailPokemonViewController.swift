@@ -139,8 +139,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
                     label.text = effectEntry
                     label.numberOfLines = 0
 
-                    
-                    self?.rootView?.stackView?.insertArrangedSubview(label, at: stackIndex)
+                    self?.rootView?.insertArrangedSubview(view: label, at: stackIndex)
                 } else {
                     self?.showAlert(title: "Error", message: "Couldnt find ability entry")
                 }

@@ -8,28 +8,15 @@
 import Foundation
 import UIKit
 
-public class NavigationControllerContainer<Presenter: Coordinatable>: UINavigationController {
+public class NavigationControllerContainer: UINavigationController {
     
     // MARK: -
     // MARK: Variables
     
-    public var presenter: Coordinatable? {
-        didSet {
-            if let presenter = self.presenter {
-                self.viewControllers.removeAll()
-                self.pushViewController(presenter, animated: false)
-            }
-        }
-    }
+    public var presenter: Coordinatable?
     
     // MARK: -
     // MARK: Initialization
-    
-    public init(presenter: Presenter) {
-        self.presenter = presenter
-        
-        super.init(nibName: nil, bundle: nil)
-    }
     
     public init() {
         super.init(nibName: nil, bundle: nil)

@@ -42,6 +42,15 @@ class DetailPokemonView: UIView, BaseView {
         self.stackView?.addArrangedSubview(button)
     }
     
+    public func insertArrangedSubview(view: UIView, at stackIndex: Int) {
+        view.isHidden = true
+        self.stackView?.insertArrangedSubview(view, at: stackIndex)
+        
+        UIView.animate(withDuration: 0.5) {
+            view.isHidden = false
+        }
+    }
+    
     public func toggleView(at index: Int, animated: Bool = true) {
         guard let view = self.stackView?.arrangedSubviews[index] else {
             return

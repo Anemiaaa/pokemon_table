@@ -29,4 +29,22 @@ extension UIViewController {
             self.present(controller, animated: true, completion: nil)
         }
     }
+    
+    func add(_ child: UIViewController) {
+        self.addChild(child)
+        self.view.addSubview(child.view)
+        
+        child.didMove(toParent: self)
+    }
+
+    func remove() {
+        guard self.parent != nil else {
+            return
+        }
+
+        self.willMove(toParent: nil)
+        self.view.removeFromSuperview()
+        
+        self.removeFromParent()
+    }
 }

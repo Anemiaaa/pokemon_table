@@ -14,10 +14,8 @@ public class LandingCoordinator: BaseCoordinator {
     // MARK: -
     // MARK: Variables
     
-    
     private let api: PokemonAPI
     private let disposeBag = DisposeBag()
-    private var controllers: [UIViewController] = []
     
     // MARK: -
     // MARK: Initialization
@@ -36,32 +34,34 @@ public class LandingCoordinator: BaseCoordinator {
     // MARK: Public
     
     override public func start() {
-        let landingViewController = PokemonListViewController(api: self.api)
-        self.controllers.append(landingViewController)
-      
-        self.prepareObserving()
-        
-        self.navigation?.pushViewController(landingViewController, animated: true)
+        self.showPokemonListController()
     }
     
     // MARK: -
     // MARK: Private
     
-    private func prepareObserving() {
+    private func showPokemonListController() {
+        let controller = PokemonListViewController(api: self.api)
         
-        self.controllers.forEach{ controller in
-            if let controller = controller as? PokemonListViewController {
-                controller.coordinator.bind(onNext: { [weak self] states in
-                    switch states {
-                    case .detail(pokemon: let pokemon):
-                        if let api = self?.api {
-                            let detailController = DetailPokemonViewController(api: api, pokemon: pokemon)
-                            
-                            self?.navigation?.pushViewController(detailController, animated: true)
-                        }
-                    }
-                }).disposed(by: self.disposeBag)
-            }
+        controller.events.bind { [weak self] states in
+            self?.handle(events: states)
+        }.disposed(by: self.disposeBag)
+        
+        self.navigation?.pushViewController(controller, animated: true)
+    }
+    
+    private func handle(events: PokemonListControllerStates) {
+        switch events {
+        case .detail(let pokemon):
+            self.showDetailController(pokemon: pokemon)
         }
     }
+    
+    private func showDetailController(pokemon: Pokemon) {
+        let detailController = DetailPokemonViewController(api: self.api, pokemon: pokemon)
+        
+        self.navigation?.pushViewController(detailController, animated: true)
+    }
 }
+
+

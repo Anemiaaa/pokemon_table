@@ -19,7 +19,10 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     // MARK: -
     // MARK: Variables
     
-    public let coordinator = PublishSubject<PokemonListControllerStates>()
+    public var events: Observable<PokemonListControllerStates> {
+        self.eventsEmitter.asObserver()
+    }
+    private let eventsEmitter = PublishSubject<PokemonListControllerStates>()
     
     private var pokemons: [Pokemon] = []
     
@@ -84,7 +87,7 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
 
             case .clickOn(indexRow: let indexRow):
                 if let pokemon =  self?.pokemons[indexRow] {
-                    self?.coordinator.onNext(.detail(pokemon: pokemon))
+                    self?.eventsEmitter.onNext(.detail(pokemon: pokemon))
                 }
             }
         }.disposed(by: self.disposeBag)
@@ -107,23 +110,19 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
         indexPaths.forEach { index in
             let pokemon = self.pokemons[index.row]
 
-            DispatchQueue.global().async {
-                self.api.features(pokemon: pokemon, completion: { [weak self] result in
-                    guard let features = self?.switchResult(result: result) else {
-                        return
-                    }
-                    
-                    self?.api.image(
-                        features: features,
-                        imageType: self?.cellImageType ?? .frontDefault,
-                        size: imageSize
-                    ) { result in
-                        let image = self?.switchResult(result: result) ?? UIImage()
-                        
-                        completion?(image)
-                    }
-                })
-            }
+            self.api.features(pokemon: pokemon, completion: { [weak self] result in
+                guard let features = self?.switchResult(result: result) else {
+                    return
+                }
+                
+                self?.api.image(
+                    features: features,
+                    imageType: self?.cellImageType ?? .frontDefault,
+                    size: imageSize
+                ) { result in
+                    self?.switchResult(result: result).map { completion?($0) }
+                }
+            })
         }
     }
     

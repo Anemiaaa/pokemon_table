@@ -58,23 +58,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
         self.rootView?.statesHandler.bind { [weak self] states in
             switch states {
             case .abilityButtonClick(label: let label, index: let index):
-                let insertIndex = index + 1
-                let arrangedSubviews = self?.rootView?.stackView?.arrangedSubviews
-                
-                if arrangedSubviews?.count == insertIndex
-                    || arrangedSubviews?[insertIndex] as? UIButton != nil
-                {
-                   guard let ability = self?.abilities?.first(where: { $0.name ==  label })
-                    else {
-                        self?.showAlert(title: "Error", message: "Ability doesnt exist")
-                        return
-                    }
-                     
-                    self?.insertToViewEntry(of: ability, at: insertIndex)
-
-                } else {
-                    self?.rootView?.toggleView(at: insertIndex)
-                }
+                self?.abilityButtonClickHandler(label: label, index: index)
             }
         }.disposed(by: disposeBag)
     }
@@ -89,6 +73,26 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
             success(features)
         case .failure(let error):
             self.showAlert(title: "Network Error", error: error)
+        }
+    }
+    
+    private func abilityButtonClickHandler(label: String, index: Int) {
+        let insertIndex = index + 1
+        let arrangedSubviews = self.rootView?.stackView?.arrangedSubviews
+        
+        if arrangedSubviews?.count == insertIndex
+            || arrangedSubviews?[insertIndex] as? UIButton != nil
+        {
+           guard let ability = self.abilities?.first(where: { $0.name ==  label })
+            else {
+                self.showAlert(title: "Error", message: "Ability doesnt exist")
+                return
+            }
+             
+            self.insertToViewEntry(of: ability, at: insertIndex)
+
+        } else {
+            self.rootView?.toggleView(at: insertIndex)
         }
     }
     
@@ -117,12 +121,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
                 let abilities = features.abilities
                 
                 abilities.forEach {
-                    let button = UIButton(type: .system)
-                    
-                    button.setTitle($0.name, for: .normal)
-                    button.titleLabel?.font = button.titleLabel?.font.withSize(19)
-                    
-                    self?.rootView?.display(button: button)
+                    self?.rootView?.displayButton(label: $0.name, fontSize: 19)
                 }
                 
                 completion(abilities)
@@ -134,12 +133,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
         self.api.effect(of: ability, completion: { [weak self] in
             self?.switchedResult(of: $0, success: {
                 if let effectEntry = $0.entry {
-                    let label = UILabel()
-                    
-                    label.text = effectEntry
-                    label.numberOfLines = 0
-
-                    self?.rootView?.insertArrangedSubview(view: label, at: stackIndex)
+                    self?.rootView?.insertLabel(at: stackIndex, text: effectEntry, rows: 0)
                 } else {
                     self?.showAlert(title: "Error", message: "Couldnt find ability entry")
                 }

@@ -13,7 +13,7 @@ public enum States {
     case abilityButtonClick(label: String, index: Int)
 }
 
-class DetailPokemonView: UIView, BaseView {
+class DetailPokemonView: BaseView {
     
     // MARK: -
     // MARK: Variables
@@ -28,11 +28,12 @@ class DetailPokemonView: UIView, BaseView {
     // MARK: -
     // MARK: Public
     
-    public func configure() {
-        //
-    }
-    
-    public func display(button: UIButton) {
+    public func displayButton(label: String, fontSize: CGFloat) {
+        let button = UIButton(type: .system)
+        
+        button.setTitle(label, for: .normal)
+        button.titleLabel?.font = button.titleLabel?.font.withSize(fontSize)
+        
         button.addTarget(
             self,
             action: #selector(onAbilityButtonClick(sender:)),
@@ -40,6 +41,15 @@ class DetailPokemonView: UIView, BaseView {
         )
         
         self.stackView?.addArrangedSubview(button)
+    }
+    
+    public func insertLabel(at stackIndex: Int, text: String, rows: Int) {
+        let label = UILabel()
+        
+        label.text = text
+        label.numberOfLines = rows
+
+        self.insertArrangedSubview(view: label, at: stackIndex)
     }
     
     public func insertArrangedSubview(view: UIView, at stackIndex: Int) {
@@ -55,13 +65,9 @@ class DetailPokemonView: UIView, BaseView {
         guard let view = self.stackView?.arrangedSubviews[index] else {
             return
         }
-        let endProperty = view.isHidden == true ? false : true
+        let endProperty = !view.isHidden
         
-        if animated {
-            UIView.animate(withDuration: 0.5) {
-                view.isHidden = endProperty
-            }
-        } else {
+        UIView.animate(withDuration: animated ? 0.5 : 0) {
             view.isHidden = endProperty
         }
     }

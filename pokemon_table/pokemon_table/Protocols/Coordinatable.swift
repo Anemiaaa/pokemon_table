@@ -10,9 +10,7 @@ import UIKit
 import RxSwift
 
 public protocol Coordinatable: UIViewController {
-    
-    var childCoordinators: [Coordinatable] { get set }
-    
+
     func start()
 }
 
@@ -20,8 +18,6 @@ public class BaseCoordinator: UIViewController, Coordinatable {
     
     // MARK: -
     // MARK: Variables
-    
-    public var childCoordinators: [Coordinatable] = []
     
     public weak var navigation: UINavigationController?
 

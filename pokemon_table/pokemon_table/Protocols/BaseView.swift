@@ -9,7 +9,12 @@ import Foundation
 import UIKit
 import RxSwift
 
-public protocol BaseView: UIView {
+public class BaseView: UIView {
     
-    func configure()
+    public weak var controller: BaseViewController<BaseView>?
+    
+    public func configure() {}
+    
+    public func prepareBinding(disposeBag: DisposeBag) {}
 }
+

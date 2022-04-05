@@ -17,14 +17,12 @@ public enum PokemonListViewStates {
     case clickOn(indexRow: Int)
 }
 
-class PokemonListView: UIView, BaseView {
+class PokemonListView: BaseView {
 
     // MARK: -
     // MARK: Variables
     
     public let statesHandler = PublishSubject<PokemonListViewStates>()
-    
-    private let disposeBag = DisposeBag()
     
     @IBOutlet weak var tableView: UITableView?
     
@@ -35,8 +33,10 @@ class PokemonListView: UIView, BaseView {
     // MARK: -
     // MARK: Public
     
-    public func configure() {
-        self.prepareObserving()
+    override func prepareBinding(disposeBag: DisposeBag) {
+        self.adapter.statesHandler.bind { [weak self] events in
+            self?.handle(events: events)
+        }.disposed(by: disposeBag)
     }
     
     public func update() {
@@ -67,12 +67,6 @@ class PokemonListView: UIView, BaseView {
                 }
             }
         }
-    }
-    
-    private func prepareObserving() {
-        self.adapter.statesHandler.bind { [weak self] events in
-            self?.handle(events: events)
-        }.disposed(by: self.disposeBag)
     }
 }
 

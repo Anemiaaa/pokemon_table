@@ -14,14 +14,14 @@ public protocol PokemonAPI {
     typealias PokemonCompletion<T> = (PokemonResult<T>) -> ()
 
     @discardableResult
-    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> URLSessionDataTask?
+    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task?
     
     @discardableResult
-    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> URLSessionDataTask?
+    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task?
     
     @discardableResult
-    func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> URLSessionDataTask?
+    func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task?
     
     @discardableResult
-    func image(features: PokemonFeatures, imageType: PokemonImageTypes, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> URLSessionDataTask?
+    func image(features: PokemonFeatures, imageType: PokemonImageTypes, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> Task?
 }

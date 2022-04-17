@@ -12,6 +12,7 @@ import RxSwift
 public enum TableEvents {
     
     case didSelect(indexPath: IndexPath)
+    case didEndDisplaying(indexPath: IndexPath)
     case handleCellEvents(at: IndexPath, events: Any)
 }
 
@@ -75,6 +76,7 @@ public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource,
     
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         self.prefetchCells.removeValue(forKey: indexPath)
+        self.statesHandler.onNext(.didEndDisplaying(indexPath: indexPath))
     }
     
     // MARK: -

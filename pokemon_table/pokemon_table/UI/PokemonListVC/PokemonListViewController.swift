@@ -26,6 +26,8 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     
     private var pokemons: [Pokemon] = []
     
+    private var cancelablePokemonImageTasks: [UUID: Task] = [:]
+    
     private let api: PokemonAPI
     private let disposeBag = DisposeBag()
     private let cellImageType = PokemonImageTypes.frontDefault
@@ -50,8 +52,6 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
         super.viewDidLoad()
      
         self.addPokemons(count: 50, completion: nil)
-        
-        self.prepareObserving()
     }
 
     
@@ -74,9 +74,9 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     }
     
     // MARK: -
-    // MARK: Private
+    // MARK: Overriden
     
-    private func prepareObserving() {
+    public override func prepareObserving() {
         self.rootView?.statesHandler.bind { [weak self] states in
             switch states {
             case .pokemons(let completion):
@@ -89,6 +89,12 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
                 if let pokemon =  self?.pokemons[indexRow] {
                     self?.eventsEmitter.onNext(.detail(pokemon: pokemon))
                 }
+            case .cellEndDisplaying(indexPath: let indexPath):
+                guard let pokemon = self?.pokemons[indexPath.row] else {
+                    return
+                }
+                
+                self?.cancelablePokemonImageTasks[pokemon.id]?.cancel()
             }
         }.disposed(by: self.disposeBag)
     }
@@ -96,31 +102,20 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     // MARK: -
     // MARK: Private
     
-    private func switchResult<T, Error>(result: Result<T, Error>) -> T? {
-        switch result {
-        case .success(let value):
-             return value
-        case .failure(let error):
-            self.showAlert(title: "Error", error: error)
-            return nil
-        }
-    }
-    
     private func imageBind(indexPaths: [IndexPath], imageSize: CGSize, completion: ((UIImage) -> ())?) {
         indexPaths.forEach { index in
             let pokemon = self.pokemons[index.row]
 
             self.api.features(pokemon: pokemon, completion: { [weak self] result in
-                guard let features = self?.switchResult(result: result) else {
-                    return
-                }
-                
-                self?.api.image(
-                    features: features,
-                    imageType: self?.cellImageType ?? .frontDefault,
-                    size: imageSize
-                ) { result in
-                    self?.switchResult(result: result).map { completion?($0) }
+                self?.switchResult(result: result) { features in
+                    let task = self?.api.image(
+                        features: features,
+                        imageType: self?.cellImageType ?? .frontDefault,
+                        size: imageSize
+                    ) { result in
+                        self?.switchResult(result: result) { completion?($0) }
+                    }
+                    self?.cancelablePokemonImageTasks[pokemon.id] = task
                 }
             })
         }

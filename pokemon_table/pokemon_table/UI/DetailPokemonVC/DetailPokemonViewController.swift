@@ -47,14 +47,12 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
         
         self.setImageToView()
         self.setAbilitiesToView { self.abilities = $0 }
-        
-        self.prepareObserving()
     }
     
     // MARK: -
-    // MARK: Private
+    // MARK: Overriden
     
-    private func prepareObserving() {
+    public override func prepareObserving() {
         self.rootView?.statesHandler.bind { [weak self] states in
             switch states {
             case .abilityButtonClick(label: let label, index: let index):
@@ -63,18 +61,8 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
         }.disposed(by: disposeBag)
     }
     
-    private func switchedResult<T>(
-        of result: F.PokemonResult<T, PokemonApiError>,
-        success: (T) -> ()
-    )
-    {
-        switch result {
-        case .success(let features):
-            success(features)
-        case .failure(let error):
-            self.showAlert(title: "Network Error", error: error)
-        }
-    }
+    // MARK: -
+    // MARK: Private
     
     private func abilityButtonClickHandler(label: String, index: Int) {
         let insertIndex = index + 1
@@ -105,8 +93,8 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
             switch result {
             case .success(let features):
                 self.api.image(features: features, imageType: .frontDefault, size: imageSize) { [weak self] result in
-                    self?.switchedResult(of: result) { image in
-                        self?.rootView?.imageView?.image = image
+                    self?.switchResult(result: result) {
+                        self?.rootView?.imageView?.image = $0
                     }
                 }
             case .failure(let error):
@@ -117,7 +105,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
     
     private func setAbilitiesToView(completion: @escaping ([PokemonAbility]) -> ()) {
         self.api.features(pokemon: self.pokemon) { [weak self] result in
-            self?.switchedResult(of: result, success: { features in
+            self?.switchResult(result: result) { features in
                 let abilities = features.abilities
                 
                 abilities.forEach {
@@ -125,19 +113,19 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
                 }
                 
                 completion(abilities)
-            })
+            }
         }
     }
     
     private func insertToViewEntry(of ability: PokemonAbility, at stackIndex: Int) {
         self.api.effect(of: ability, completion: { [weak self] in
-            self?.switchedResult(of: $0, success: {
+            self?.switchResult(result: $0) {
                 if let effectEntry = $0.entry {
                     self?.rootView?.insertLabel(at: stackIndex, text: effectEntry, rows: 0)
                 } else {
                     self?.showAlert(title: "Error", message: "Couldnt find ability entry")
                 }
-            })
+            }
         })
     }
 }

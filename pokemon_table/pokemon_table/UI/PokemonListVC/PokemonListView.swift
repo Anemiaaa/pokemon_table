@@ -15,6 +15,8 @@ public enum PokemonListViewStates {
     case image(indexPaths: [IndexPath], imageSize: CGSize, _ completion: ((UIImage) -> ())?)
     
     case clickOn(indexRow: Int)
+    
+    case cellEndDisplaying(indexPath: IndexPath)
 }
 
 class PokemonListView: BaseView {
@@ -66,6 +68,8 @@ class PokemonListView: BaseView {
                     }))
                 }
             }
+        case .didEndDisplaying(indexPath: let indexPath):
+            self.statesHandler.onNext(.cellEndDisplaying(indexPath: indexPath))
         }
     }
 }

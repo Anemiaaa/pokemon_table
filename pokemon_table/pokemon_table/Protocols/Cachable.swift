@@ -10,8 +10,8 @@ import UIKit
 
 public protocol Cachable {
 
-    associatedtype Key: AnyObject
-    associatedtype Value: AnyObject
+    associatedtype Key: Any
+    associatedtype Value: Any
     
     func insert(value: Value, for key: Key)
     

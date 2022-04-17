@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct NetworkDataNode<ContainedObjectType: Codable>: Codable {
+public struct NetworkDataNode<ContainedObjectType: Codable>: NetworkProcessable {
     
     var count: Int
     var next: URL?

@@ -19,7 +19,7 @@ public class BaseViewController<T: BaseView>: UIViewController, RootViewGettable
     private let disposeBag = DisposeBag()
     
     // MARK: -
-    // MARK: View Lifr Cycle
+    // MARK: View Life Cycle
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,5 +27,12 @@ public class BaseViewController<T: BaseView>: UIViewController, RootViewGettable
         self.rootView?.controller = self as? BaseViewController<BaseView>
         self.rootView?.prepareBinding(disposeBag: self.disposeBag)
         self.rootView?.configure()
+        
+        self.prepareObserving()
     }
+    
+    // MARK: -
+    // MARK: Public
+    
+    public func prepareObserving() {}
 }

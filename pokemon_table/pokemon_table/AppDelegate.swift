@@ -17,8 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         
-        let api = PokemonNetworkAPI(
-            network: NetworkHelper(session: URLSession.shared),
+        let api = PokemonNetworkAPI<UrlSessionService>(
             imageCacher: ImageCacher(config: ConfigCacher.default)
         )
         

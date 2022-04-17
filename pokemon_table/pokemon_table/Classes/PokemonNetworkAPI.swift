@@ -18,27 +18,26 @@ public enum PokemonApiError: Error {
     case instanceDeath
 }
 
-public class PokemonNetworkAPI: PokemonAPI {
+public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
 
     // MARK: -
     // MARK: Type Inferences
-    
-    private enum Links {
+
+    private struct Links {
         
-        static let random = "https://pokeapi.co/api/v2/pokemon?limit="
+        let random: String
     }
 
     // MARK: -
     // MARK: Variables
-    
-    private let networkHelper: Networking
+
     private let imageCashe: ImageCacher
+    private let links = Links(random: "https://pokeapi.co/api/v2/pokemon?limit=")
     
     // MARK: -
     // MARK: Initialization
     
-    public init(network: Networking, imageCacher: ImageCacher) {
-        self.networkHelper = NetworkHelper(session: URLSession.shared)
+    public init(imageCacher: ImageCacher) {
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
     }
     
@@ -46,12 +45,12 @@ public class PokemonNetworkAPI: PokemonAPI {
     // MARK: Public
     
     @discardableResult
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> URLSessionDataTask? {
+    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task? {
         guard count > 0 else {
             completion(.failure(.incorrectInputFormat))
             return nil
         }
-        guard let url = URL(string: Links.random + String(count)) else {
+        guard let url = URL(string: links.random + String(count)) else {
             completion(.failure(.urlInit))
             return nil
         }
@@ -62,14 +61,14 @@ public class PokemonNetworkAPI: PokemonAPI {
     }
     
     @discardableResult
-    public func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> URLSessionDataTask? {
+    public func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
         return self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
             completion($0)
         }
     }
     
     @discardableResult
-    public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> URLSessionDataTask? {
+    public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
         return self.networkData(from: EffectEntry.self, url: ability.url) {
             completion($0)
         }
@@ -80,24 +79,24 @@ public class PokemonNetworkAPI: PokemonAPI {
         features: PokemonFeatures,
         imageType: PokemonImageTypes,
         size: CGSize,
-        completion: @escaping PokemonCompletion<UIImage>) -> URLSessionDataTask?
+        completion: @escaping PokemonCompletion<UIImage>) -> Task?
     {
         guard let url = self.url(from: features, to: imageType) else {
             completion(.failure(.imageNotExist))
             return nil
         }
         
-        if let imageData = self.imageCashe.cachedData(for: url as NSURL) {
-            completion(.success(self.imageCashe.downsample(data: imageData, to: size)))
+        if let imageData = self.imageCashe.cachedData(for: url) {
+            completion(.success(self.imageCashe.downsample(data: imageData as Data, to: size)))
             return nil
         }
 
-        return self.networkHelper.image(url: url) { [weak self] result in
+        return Service.dataTask(url: url) { [weak self] result in
             switch result {
             case .success(let imageData):
-                self?.imageCashe.insert(value: imageData as NSData, for: url as NSURL)
+                self?.imageCashe.insert(value: imageData, for: url)
                 
-                completion(.success(self?.imageCashe.downsample(data: imageData as NSData, to: size) ?? UIImage()))
+                completion(.success(self?.imageCashe.downsample(data: imageData, to: size) ?? UIImage()))
             case .failure(let error):
                 completion(.failure(.anotherError(error)))
             }
@@ -116,12 +115,12 @@ public class PokemonNetworkAPI: PokemonAPI {
         }
     }
     
-    private func networkData<T: Codable> (
+    private func networkData<T: NetworkProcessable> (
         from decodeDataType: T.Type,
         url: URL,
-        completion: @escaping PokemonCompletion<T>) -> URLSessionDataTask?
+        completion: @escaping PokemonCompletion<T.ReturnedType>) -> Task?
     {
-        return self.networkHelper.data(dataType: decodeDataType.self, url: url) { [weak self] result in
+        return Service.dataTask(url: url, modelType: decodeDataType.self) { [weak self] result in
             completion(self?.lift(response: result) ?? .failure(.instanceDeath))
         }
     }

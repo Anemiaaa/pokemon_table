@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-public class ImageCacher: Cacher<NSURL, NSData> {
+public class ImageCacher: Cacher<URL,Data> {
     
-    public func downsample(data: NSData, to size: CGSize) -> UIImage {
+    public func downsample(data: Data, to size: CGSize) -> UIImage {
         let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
         let source = CGImageSourceCreateWithData(data as CFData, sourceOptions)
         

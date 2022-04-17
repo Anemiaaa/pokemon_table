@@ -13,7 +13,7 @@ public struct PokemonFeatures {
     public let images: PokemonImages
 }
 
-public struct PokemonAbility: Codable {
+public struct PokemonAbility: NetworkProcessable {
     
     public let name: String
     public let url: URL
@@ -26,7 +26,7 @@ public struct PokemonAbility: Codable {
     }
 }
 
-public struct EffectEntry: Codable {
+public struct EffectEntry: NetworkProcessable {
     
     public let entry: String?
     
@@ -40,7 +40,7 @@ public struct EffectEntry: Codable {
     }
 }
 
-extension PokemonFeatures: Codable {
+extension PokemonFeatures: NetworkProcessable {
     
     enum CodingKeys: String, CodingKey {
         

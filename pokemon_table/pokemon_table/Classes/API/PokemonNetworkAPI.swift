@@ -23,21 +23,21 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
     // MARK: -
     // MARK: Type Inferences
 
-    private struct Links {
-        
-        let random: String
-    }
+//    private struct Links {
+//
+//        let random: String
+//    }
 
     // MARK: -
     // MARK: Variables
 
-    private let imageCashe: ImageCacher
-    private let links = Links(random: "https://pokeapi.co/api/v2/pokemon?limit=")
+    private let imageCashe: ImageCachable
+    //private let links = Links(random: "https://pokeapi.co/api/v2/pokemon?limit=")
     
     // MARK: -
     // MARK: Initialization
     
-    public init(imageCacher: ImageCacher) {
+    public init(imageCacher: ImageCachable) {
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
     }
     
@@ -50,42 +50,43 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
             completion(.failure(.incorrectInputFormat))
             return nil
         }
-        guard let url = URL(string: links.random + String(count)) else {
-            completion(.failure(.urlInit))
-            return nil
-        }
+        //guard
+        let url = Pokemon.url.appendingPathComponent(String(count))
+//        else {
+//            completion(.failure(.urlInit))
+//            return nil
+//        }
 
         return self.networkData(from: NetworkDataNode<[Pokemon]>.self, url: url) {
             completion($0)
         }
     }
     
-    @discardableResult
-    public func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
-        return self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
-            completion($0)
-        }
-    }
+//    @discardableResult
+//    public func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
+//        return self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
+//            completion($0)
+//        }
+//    }
     
     @discardableResult
     public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
-        return self.networkData(from: EffectEntry.self, url: ability.url) {
+        return self.networkData(from: EffectEntry.self, url: ability.effectURL) {
             completion($0)
         }
     }
     
     @discardableResult
     public func image(
-        features: PokemonFeatures,
-        imageType: PokemonImageTypes,
+        url: URL,
         size: CGSize,
         completion: @escaping PokemonCompletion<UIImage>) -> Task?
     {
-        guard let url = self.url(from: features, to: imageType) else {
-            completion(.failure(.imageNotExist))
-            return nil
-        }
-        
+//        guard let url = self.url(from: features, to: imageType) else {
+//            completion(.failure(.imageNotExist))
+//            return nil
+//        }
+//
         if let imageData = self.imageCashe.cachedData(for: url) {
             completion(.success(self.imageCashe.downsample(data: imageData as Data, to: size)))
             return nil
@@ -100,6 +101,18 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
             case .failure(let error):
                 completion(.failure(.anotherError(error)))
             }
+        }
+    }
+    
+    @discardableResult
+    public func data<T>(
+        url: URL,
+        model: T.Type,
+        completion: @escaping PokemonCompletion<T.ReturnedType>
+    ) -> Task? where T : NetworkProcessable
+    {
+        return Service.dataTask(url: url, modelType: model.self) { [weak self] result in
+            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
         }
     }
     
@@ -125,26 +138,26 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
         }
     }
     
-    private func url(from features: PokemonFeatures, to type: PokemonImageTypes) -> URL? {
-        let images = features.images
-        
-        switch type {
-        case .backDefault:
-            return images.backDefault
-        case .backFemale:
-            return images.backFemale
-        case .backShiny:
-            return images.backShiny
-        case .backShinyFemale:
-            return images.backShinyFemale
-        case .frontDefault:
-            return images.frontDefault
-        case .frontFemale:
-            return images.frontFemale
-        case .frontShiny:
-            return images.frontShiny
-        case .frontShinyFemale:
-            return images.frontShinyFemale
-        }
-    }
+//    private func url(from features: PokemonFeatures, to type: PokemonImageTypes) -> URL? {
+//        let images = features.images
+//
+//        switch type {
+//        case .backDefault:
+//            return images.backDefault
+//        case .backFemale:
+//            return images.backFemale
+//        case .backShiny:
+//            return images.backShiny
+//        case .backShinyFemale:
+//            return images.backShinyFemale
+//        case .frontDefault:
+//            return images.frontDefault
+//        case .frontFemale:
+//            return images.frontFemale
+//        case .frontShiny:
+//            return images.frontShiny
+//        case .frontShinyFemale:
+//            return images.frontShinyFemale
+//        }
+//    }
 }

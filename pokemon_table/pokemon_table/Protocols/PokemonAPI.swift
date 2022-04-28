@@ -16,12 +16,16 @@ public protocol PokemonAPI {
     @discardableResult
     func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task?
     
-    @discardableResult
-    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task?
-    
+//    @discardableResult
+//    func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task?
+//    
     @discardableResult
     func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task?
     
     @discardableResult
-    func image(features: PokemonFeatures, imageType: PokemonImageTypes, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> Task?
+    func image(url: URL, size: CGSize, completion: @escaping PokemonCompletion<UIImage>) -> Task?
+//
+//    @discardableResult
+//    func data<T: NetworkProcessable>(url: URL, model: T.Type, completion: @escaping PokemonCompletion<T.ReturnedType>) -> Task?
 }
+

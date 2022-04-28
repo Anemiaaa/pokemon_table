@@ -29,7 +29,6 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     private var cancelablePokemonImageTasks: [UUID: Task] = [:]
     
     private let api: PokemonAPI
-    private let disposeBag = DisposeBag()
     private let cellImageType = PokemonImageTypes.frontDefault
     
     // MARK: -
@@ -76,7 +75,7 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     // MARK: -
     // MARK: Overriden
     
-    public override func prepareObserving() {
+    public override func prepareObserving(disposeBag: DisposeBag) {
         self.rootView?.statesHandler.bind { [weak self] states in
             switch states {
             case .pokemons(let completion):
@@ -96,7 +95,7 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
                 
                 self?.cancelablePokemonImageTasks[pokemon.id]?.cancel()
             }
-        }.disposed(by: self.disposeBag)
+        }.disposed(by: disposeBag)
     }
         
     // MARK: -

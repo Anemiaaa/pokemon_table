@@ -21,7 +21,6 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
     private var api: PokemonAPI
     private var pokemon: Pokemon
     private var abilities: [PokemonAbility]?
-    private var disposeBag = DisposeBag()
     
     // MARK: -
     // MARK: Initialization
@@ -52,7 +51,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
     // MARK: -
     // MARK: Overriden
     
-    public override func prepareObserving() {
+    public override func prepareObserving(disposeBag: DisposeBag) {
         self.rootView?.statesHandler.bind { [weak self] states in
             switch states {
             case .abilityButtonClick(label: let label, index: let index):

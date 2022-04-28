@@ -9,6 +9,8 @@ import Foundation
 
 public struct NetworkDataNode<ContainedObjectType: Codable>: NetworkProcessable {
     
+    public typealias ReturnedType = NetworkDataNode<[Pokemon]>
+    
     var count: Int
     var next: URL?
     var previous: URL?

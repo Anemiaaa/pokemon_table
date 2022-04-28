@@ -14,25 +14,35 @@ public struct Pokemon {
     
     public let id = UUID()
     public let name: String
-    public let url: URL
+    public let abilities: [PokemonAbility]
+    public let images: PokemonImages
     
     // MARK: -
     // MARK: Initialization
     
-    public init(name: String, url: URL) {
+    public init(name: String, abilities: [PokemonAbility], images: PokemonImages) {
         self.name = name
-        self.url = url
+        self.abilities = abilities
+        self.images = images
     }
 }
 
 // MARK: -
 // MARK: Codable
 
-extension Pokemon: Codable {
+extension Pokemon: NetworkProcessable {
+    public static var url: URL {
+        if let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=") {
+            return url
+        }
+    }
+    
     
     enum CodingKeys: String, CodingKey {
         
         case name
         case url
+        case abilities
+        case images = "sprites"
     }
 }

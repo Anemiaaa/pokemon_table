@@ -7,22 +7,22 @@
 
 import Foundation
 
-public struct PokemonFeatures {
-    
-    public let abilities: [PokemonAbility]
-    public let images: PokemonImages
-}
+//public struct PokemonFeatures {
+//    
+//    public let abilities: [PokemonAbility]
+//    public let images: PokemonImages
+//}
 
 public struct PokemonAbility: NetworkProcessable {
     
     public let name: String
-    public let url: URL
+    public let effectURL: URL
 
     public init(from decoder: Decoder) throws {
         let rawResponse = try RawPokemonAbility(from: decoder)
         
         self.name = rawResponse.ability.name
-        self.url = rawResponse.ability.url
+        self.effectURL = rawResponse.ability.url
     }
 }
 
@@ -40,14 +40,14 @@ public struct EffectEntry: NetworkProcessable {
     }
 }
 
-extension PokemonFeatures: NetworkProcessable {
-    
-    enum CodingKeys: String, CodingKey {
-        
-        case abilities
-        case images = "sprites"
-    }
-}
+//extension PokemonFeatures: NetworkProcessable {
+//    
+//    enum CodingKeys: String, CodingKey {
+//        
+//        case abilities
+//        case images = "sprites"
+//    }
+//}
 
 fileprivate struct RawPokemonAbility: Decodable {
     

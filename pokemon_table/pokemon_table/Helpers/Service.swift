@@ -117,3 +117,37 @@ final public class UrlSessionService: NetworkService {
         return task
     }
 }
+
+public enum RequestType {
+    
+    case get
+    case post
+    case put
+    case delete
+}
+
+public struct Request<ModelType, Service>
+    where ModelType: NetworkProcessable, Service: NetworkService
+{
+    
+    typealias Service = Service
+    
+    public let modelType: ModelType.Type
+    public let url: URL
+    public let body: Data?
+    public let contentType: String
+    
+    internal var type = RequestType.get
+    
+    public init(
+        modelType: ModelType.Type,
+        url: URL,
+        body: Data? = nil,
+        contentType: String = ""
+    ) {
+        self.modelType = modelType
+        self.url = url
+        self.body = body
+        self.contentType = contentType
+    }
+}

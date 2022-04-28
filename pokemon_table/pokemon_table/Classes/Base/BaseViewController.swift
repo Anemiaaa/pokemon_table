@@ -28,11 +28,11 @@ public class BaseViewController<T: BaseView>: UIViewController, RootViewGettable
         self.rootView?.prepareBinding(disposeBag: self.disposeBag)
         self.rootView?.configure()
         
-        self.prepareObserving()
+        self.prepareObserving(disposeBag: self.disposeBag)
     }
     
     // MARK: -
     // MARK: Public
     
-    public func prepareObserving() {}
+    public func prepareObserving(disposeBag: DisposeBag) {}
 }

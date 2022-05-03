@@ -88,36 +88,34 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
             self.showAlert(title: "Image error", message: nil)
             return
         }
-        self.api.features(pokemon: pokemon) { result in
-            switch result {
-            case .success(let features):
-                self.api.image(features: features, imageType: .frontDefault, size: imageSize) { [weak self] result in
+        
+        self.api.data(url: self.pokemon.url, model: PokemonFeatures.self) { [weak self] result in
+            self?.switchResult(result: result) { features in
+                self?.api.image(features: features, imageType: .frontDefault, size: imageSize, completion: { result in
                     self?.switchResult(result: result) {
                         self?.rootView?.imageView?.image = $0
                     }
-                }
-            case .failure(let error):
-                self.showAlert(title: "Network Error", error: error)
+                })
             }
         }
     }
     
     private func setAbilitiesToView(completion: @escaping ([PokemonAbility]) -> ()) {
-        self.api.features(pokemon: self.pokemon) { [weak self] result in
+        self.api.data(url: self.pokemon.url, model: PokemonFeatures.self, completion: { [weak self] result in
             self?.switchResult(result: result) { features in
                 let abilities = features.abilities
-                
+
                 abilities.forEach {
                     self?.rootView?.displayButton(label: $0.name, fontSize: 19)
                 }
-                
+
                 completion(abilities)
             }
-        }
+        })
     }
     
     private func insertToViewEntry(of ability: PokemonAbility, at stackIndex: Int) {
-        self.api.effect(of: ability, completion: { [weak self] in
+        self.api.data(url: ability.effectURL, model: EffectEntry.self, completion: { [weak self] in
             self?.switchResult(result: $0) {
                 if let effectEntry = $0.entry {
                     self?.rootView?.insertLabel(at: stackIndex, text: effectEntry, rows: 0)

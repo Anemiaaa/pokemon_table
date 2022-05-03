@@ -14,18 +14,12 @@ public enum F {
 
     typealias PokemonResult<T, ErrorType: Error> = (Result<T, ErrorType>)
     typealias PokemonCompletion<T, ErrorType: Error> = (PokemonResult<T, ErrorType>) -> ()
-}
-
-public func curry<A, B, C, D>(_ f: @escaping (A, B, C) -> D) -> (A) -> (B) -> (C) -> D {
-    return { a in
-        { b in { f(a, b, $0) } }
+    
+    public static func lift<Value>(_ value: Value) -> () -> Value {
+        return { value }
     }
-}
-
-public func flip<A, B, Result>(_ f: @escaping (A, B) -> Result) -> (B, A) -> Result {
-    return { f($1, $0) }
-}
-
-public func flip<A, B, C, Result>(_ f: @escaping (A, B, C) -> Result) -> (C, B, A) -> Result {
-    return { f($2, $1, $0) }
+    
+    public static func identity<Value>(_ value: Value) -> Value {
+        return value
+    }
 }

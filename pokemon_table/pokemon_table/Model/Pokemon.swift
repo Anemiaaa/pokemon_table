@@ -7,23 +7,27 @@
 
 import Foundation
 
-public struct Pokemon {
+public struct Pokemon: Codable {
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case name
+        case url
+    }
 
     // MARK: -
     // MARK: Variables
     
     public let id = UUID()
     public let name: String
-    public let abilities: [PokemonAbility]
-    public let images: PokemonImages
+    public let url: URL
     
     // MARK: -
     // MARK: Initialization
     
-    public init(name: String, abilities: [PokemonAbility], images: PokemonImages) {
+    public init(name: String, url: URL) {
         self.name = name
-        self.abilities = abilities
-        self.images = images
+        self.url = url
     }
 }
 
@@ -31,18 +35,13 @@ public struct Pokemon {
 // MARK: Codable
 
 extension Pokemon: NetworkProcessable {
-    public static var url: URL {
+    
+    public typealias ReturnedType = NetworkDataNode<[Pokemon]>
+    
+    public static var url: URL? {
         if let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=") {
             return url
         }
-    }
-    
-    
-    enum CodingKeys: String, CodingKey {
-        
-        case name
-        case url
-        case abilities
-        case images = "sprites"
+        return nil
     }
 }

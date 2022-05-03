@@ -17,9 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         
-        let api = PokemonNetworkAPI<UrlSessionService>(
+        let api = PokemonNetworkAPI<NetworkHelper>(
             imageCacher: ImageCacher(config: ConfigCacher.default)
         )
+        
+//        let api = PokemonServiceAPI<UrlSessionService>(
+//            imageCacher: ImageCacher(config: ConfigCacher.default)
+//        )
         
         let navigation = NavigationControllerContainer()
         let coordinator = LandingCoordinator(api: api, navigationController: navigation)

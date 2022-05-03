@@ -7,13 +7,13 @@
 
 import Foundation
 
-//public struct PokemonFeatures {
-//    
-//    public let abilities: [PokemonAbility]
-//    public let images: PokemonImages
-//}
+public struct PokemonFeatures: Codable {
+    
+    public let abilities: [PokemonAbility]
+    public let images: PokemonImages
+}
 
-public struct PokemonAbility: NetworkProcessable {
+public struct PokemonAbility: Codable {
     
     public let name: String
     public let effectURL: URL
@@ -26,7 +26,7 @@ public struct PokemonAbility: NetworkProcessable {
     }
 }
 
-public struct EffectEntry: NetworkProcessable {
+public struct EffectEntry: NetworkProcessable, Codable {
     
     public let entry: String?
     
@@ -40,14 +40,14 @@ public struct EffectEntry: NetworkProcessable {
     }
 }
 
-//extension PokemonFeatures: NetworkProcessable {
-//    
-//    enum CodingKeys: String, CodingKey {
-//        
-//        case abilities
-//        case images = "sprites"
-//    }
-//}
+extension PokemonFeatures: NetworkProcessable {
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case abilities
+        case images = "sprites"
+    }
+}
 
 fileprivate struct RawPokemonAbility: Decodable {
     

@@ -21,18 +21,9 @@ public enum PokemonApiError: Error {
 public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
 
     // MARK: -
-    // MARK: Type Inferences
-
-//    private struct Links {
-//
-//        let random: String
-//    }
-
-    // MARK: -
     // MARK: Variables
 
     private let imageCashe: ImageCachable
-    //private let links = Links(random: "https://pokeapi.co/api/v2/pokemon?limit=")
     
     // MARK: -
     // MARK: Initialization
@@ -50,43 +41,30 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
             completion(.failure(.incorrectInputFormat))
             return nil
         }
-        //guard
-        let url = Pokemon.url.appendingPathComponent(String(count))
-//        else {
-//            completion(.failure(.urlInit))
-//            return nil
-//        }
+        guard let url = Pokemon.url?.append(count)
+        else {
+            completion(.failure(.urlInit))
+            return nil
+        }
 
         return self.networkData(from: NetworkDataNode<[Pokemon]>.self, url: url) {
             completion($0)
         }
     }
     
-//    @discardableResult
-//    public func features(pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
-//        return self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
-//            completion($0)
-//        }
-//    }
-    
-    @discardableResult
-    public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
-        return self.networkData(from: EffectEntry.self, url: ability.effectURL) {
-            completion($0)
-        }
-    }
-    
     @discardableResult
     public func image(
-        url: URL,
+        features: PokemonFeatures,
+        imageType: PokemonImageTypes,
         size: CGSize,
-        completion: @escaping PokemonCompletion<UIImage>) -> Task?
+        completion: @escaping PokemonCompletion<UIImage>
+    ) -> Task?
     {
-//        guard let url = self.url(from: features, to: imageType) else {
-//            completion(.failure(.imageNotExist))
-//            return nil
-//        }
-//
+        guard let url = self.url(from: features, to: imageType) else {
+            completion(.failure(.imageNotExist))
+            return nil
+        }
+
         if let imageData = self.imageCashe.cachedData(for: url) {
             completion(.success(self.imageCashe.downsample(data: imageData as Data, to: size)))
             return nil
@@ -138,26 +116,26 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
         }
     }
     
-//    private func url(from features: PokemonFeatures, to type: PokemonImageTypes) -> URL? {
-//        let images = features.images
-//
-//        switch type {
-//        case .backDefault:
-//            return images.backDefault
-//        case .backFemale:
-//            return images.backFemale
-//        case .backShiny:
-//            return images.backShiny
-//        case .backShinyFemale:
-//            return images.backShinyFemale
-//        case .frontDefault:
-//            return images.frontDefault
-//        case .frontFemale:
-//            return images.frontFemale
-//        case .frontShiny:
-//            return images.frontShiny
-//        case .frontShinyFemale:
-//            return images.frontShinyFemale
-//        }
-//    }
+    private func url(from features: PokemonFeatures, to type: PokemonImageTypes) -> URL? {
+        let images = features.images
+
+        switch type {
+        case .backDefault:
+            return images.backDefault
+        case .backFemale:
+            return images.backFemale
+        case .backShiny:
+            return images.backShiny
+        case .backShinyFemale:
+            return images.backShinyFemale
+        case .frontDefault:
+            return images.frontDefault
+        case .frontFemale:
+            return images.frontFemale
+        case .frontShiny:
+            return images.frontShiny
+        case .frontShinyFemale:
+            return images.frontShinyFemale
+        }
+    }
 }

@@ -1,26 +1,15 @@
 //
-//  NetworkProcessable.swift
-//  pokemon_table
+//  NetworkProcessable+Extensions.swift
+//  Network Service
 //
-//  Created by Yana on 17/04/2022.
+//  Created by IDAP Developer on 12/3/19.
+//  Copyright © 2019 Bendis. All rights reserved.
 //
 
 import Foundation
 
-public protocol NetworkProcessable: DataInitiable, Codable {
-    
-    associatedtype ReturnedType: Codable = Self
-    
-    static var url: URL { get }
-    
-    static func initialize(
-        with data: Result<Data, Error>
-    ) -> Result<ReturnedType, Error>
-    
-    static func dataInitialize(with data: Result<Data, Error>) -> Result<ReturnedType, Error>
-}
-
 public extension NetworkProcessable {
+    
     static func initialize(with data: Result<DataType, Error>) -> Result<ReturnedType, Error> {
         dataInitialize(with: data)
     }

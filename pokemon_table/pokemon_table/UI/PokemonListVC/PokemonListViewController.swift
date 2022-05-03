@@ -104,19 +104,20 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     private func imageBind(indexPaths: [IndexPath], imageSize: CGSize, completion: ((UIImage) -> ())?) {
         indexPaths.forEach { index in
             let pokemon = self.pokemons[index.row]
-
-            self.api.features(pokemon: pokemon, completion: { [weak self] result in
-                self?.switchResult(result: result) { features in
+            
+            self.api.data(url: pokemon.url, model: PokemonFeatures.self) { [weak self] result in
+                self?.switchResult(result: result, unwrappedValue: { features in
                     let task = self?.api.image(
                         features: features,
-                        imageType: self?.cellImageType ?? .frontDefault,
+                        imageType: .frontDefault,
                         size: imageSize
                     ) { result in
                         self?.switchResult(result: result) { completion?($0) }
                     }
+                    
                     self?.cancelablePokemonImageTasks[pokemon.id] = task
-                }
-            })
+                })
+            }
         }
     }
     

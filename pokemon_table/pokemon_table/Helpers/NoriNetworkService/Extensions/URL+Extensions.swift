@@ -1,8 +1,9 @@
 //
-//  UrlExtension.swift
-//  pokemon_table
+//  URL+Extensions.swift
+//  Network Service
 //
-//  Created by Yana on 21/04/2022.
+//  Created by IDAP Developer on 12/3/19.
+//  Copyright © 2019 Bendis. All rights reserved.
 //
 
 import Foundation

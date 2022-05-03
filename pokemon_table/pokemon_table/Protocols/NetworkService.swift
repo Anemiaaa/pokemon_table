@@ -7,14 +7,7 @@
 
 import Foundation
 
-public protocol DataInitiable {
-    
-    typealias DataType = Data
-}
-
 public protocol NetworkService {
-    
-    associatedtype DataType
     
     typealias NetworkResult<ModelType: Codable> = Result<ModelType, Error>
     typealias NetworkResponse<ModelType: Codable> = (NetworkResult<ModelType>) -> ()
@@ -33,42 +26,40 @@ public protocol NetworkService {
     ) -> Task
 }
 
-public protocol QueryParamsType: Encodable { }
-
-public extension NetworkService {
-    
-    static func request<ModelType>(
-        model: ModelType.Type,
-        url: URL? = nil
-    )
-        -> Request<ModelType, Self> where ModelType: NetworkProcessable
-    {
-        return Request(modelType: model, url: url ?? model.url)
-    }
-    
-    static func request<ModelType, Params: QueryParamsType>(
-        model: ModelType.Type,
-        params: Params
-    )
-        -> Request<ModelType, Self> where ModelType: NetworkProcessable
-    {
-        self.request(model: model, params: params, url: nil)
-    }
-    
-    static func request<ModelType, Params: QueryParamsType>(
-        model: ModelType.Type,
-        params: Params,
-        url: URL? = nil
-    )
-        -> Request<ModelType, Self> where ModelType: NetworkProcessable
-    {
-        let encoder = JSONEncoder()
-        let data = (try? encoder.encode(params)) ?? Data()
-        
-        let dictionary = (try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)) as? [String : Any]
-        
-        let url = (url ?? model.url) +? (dictionary ?? [:])
-        
-        return Request(modelType: model, url: url)
-    }
-}
+//public extension NetworkService {
+//
+//    static func request<ModelType>(
+//        model: ModelType.Type,
+//        url: URL? = nil
+//    )
+//        -> Request<ModelType, Self> where ModelType: NetworkProcessable
+//    {
+//        return Request(modelType: model, url: url ?? model.url)
+//    }
+//
+//    static func request<ModelType, Params: QueryParamsType>(
+//        model: ModelType.Type,
+//        params: Params
+//    )
+//        -> Request<ModelType, Self> where ModelType: NetworkProcessable
+//    {
+//        self.request(model: model, params: params, url: nil)
+//    }
+//
+//    static func request<ModelType, Params: QueryParamsType>(
+//        model: ModelType.Type,
+//        params: Params,
+//        url: URL? = nil
+//    )
+//        -> Request<ModelType, Self> where ModelType: NetworkProcessable
+//    {
+//        let encoder = JSONEncoder()
+//        let data = (try? encoder.encode(params)) ?? Data()
+//
+//        let dictionary = (try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)) as? [String : Any]
+//
+//        let url = (url ?? model.url) +? (dictionary ?? [:])
+//
+//        return Request(modelType: model, url: url)
+//    }
+//}

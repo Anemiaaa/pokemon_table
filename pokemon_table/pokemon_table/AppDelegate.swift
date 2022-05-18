@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,7 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         
-        let api = PokemonNetworkAPI<NetworkHelper>(
+        let api = PokemonNetworkAPI(
+            service: NetworkHelper(),
             imageCacher: ImageCacher(config: ConfigCacher.default)
         )
         
@@ -25,8 +27,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            imageCacher: ImageCacher(config: ConfigCacher.default)
 //        )
         
+        let manager = PokemonManager(api: api)
+        
         let navigation = NavigationControllerContainer()
-        let coordinator = LandingCoordinator(api: api, navigationController: navigation)
+        let coordinator = LandingCoordinator(api: manager, navigationController: navigation)
         
         navigation.presenter = coordinator
         
@@ -38,6 +42,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.makeKeyAndVisible()
         
         return true
+    }
+    
+    // MARK: -
+    // MARK: Core Data
+    
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "CoreData")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+
+    // MARK: - Core Data Saving support
+
+    func saveContext() {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
     }
 
 }

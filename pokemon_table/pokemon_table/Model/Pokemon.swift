@@ -3,7 +3,7 @@
 //  pokemon_table
 //
 //  Created by mac on 17.01.2022.
-//
+
 
 import Foundation
 
@@ -36,7 +36,7 @@ public struct Pokemon: Codable {
 
 extension Pokemon: NetworkProcessable {
     
-    public typealias ReturnedType = NetworkDataNode<[Pokemon]>
+    public typealias ReturnedType = NetworkDataNode
     
     public static var url: URL? {
         if let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=") {
@@ -44,4 +44,24 @@ extension Pokemon: NetworkProcessable {
         }
         return nil
     }
+}
+
+
+
+// MARK: -
+// MARK: CoreDataInitiable
+
+extension Pokemon: CoreDataInitiable {
+
+    public typealias CoreDataType = PokemonModel
+    
+    public init(coreDataModel: PokemonModel) {
+        guard let name = coreDataModel.name, let url = coreDataModel.url else {
+            fatalError("Initialization error")
+        }
+        
+        self.name = name
+        self.url = url
+    }
+    
 }

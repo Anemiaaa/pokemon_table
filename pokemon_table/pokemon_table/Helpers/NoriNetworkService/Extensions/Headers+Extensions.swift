@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Headers where Self: Encodable {
+public extension Headers {
     
     var dictionary: [String: String] {
         let encoder = JSONEncoder()

@@ -45,3 +45,27 @@ public enum PokemonImageTypes {
     case frontShiny
     case frontShinyFemale
 }
+
+extension PokemonImages: CoreDataInitiable {
+    
+    public typealias CoreDataType = PokemonImagesModel
+    
+    public init(coreDataModel: PokemonImagesModel) {
+        guard let backDefault = coreDataModel.backDefault,
+              let backShiny = coreDataModel.backShiny,
+              let frontDefault = coreDataModel.frontDefault,
+              let frontShiny = coreDataModel.frontShiny
+        else {
+            fatalError("Initialization Error")
+        }
+        
+        self.backDefault = backDefault
+        self.backFemale = coreDataModel.backFemale
+        self.backShiny = backShiny
+        self.backShinyFemale = coreDataModel.backShinyFemale
+        self.frontDefault = frontDefault
+        self.frontFemale = coreDataModel.frontFemale
+        self.frontShiny = frontShiny
+        self.frontShinyFemale = coreDataModel.frontShinyFemale
+    }
+}

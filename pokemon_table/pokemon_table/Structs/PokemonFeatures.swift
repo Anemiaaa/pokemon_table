@@ -6,38 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 public struct PokemonFeatures: Codable {
     
     public let abilities: [PokemonAbility]
     public let images: PokemonImages
-}
-
-public struct PokemonAbility: Codable {
-    
-    public let name: String
-    public let effectURL: URL
-
-    public init(from decoder: Decoder) throws {
-        let rawResponse = try RawPokemonAbility(from: decoder)
-        
-        self.name = rawResponse.ability.name
-        self.effectURL = rawResponse.ability.url
-    }
-}
-
-public struct EffectEntry: NetworkProcessable, Codable {
-    
-    public let entry: String?
-    
-    public init(from decoder: Decoder) throws {
-        let rawResponse = try RawEffect(from: decoder)
-        
-        let effect = rawResponse.effects
-            .first(where: { $0.language.name == "en" })
-        
-        self.entry = effect?.entry
-    }
 }
 
 extension PokemonFeatures: NetworkProcessable {
@@ -49,40 +23,22 @@ extension PokemonFeatures: NetworkProcessable {
     }
 }
 
-fileprivate struct RawPokemonAbility: Decodable {
+extension PokemonFeatures: CoreDataInitiable {
     
-    struct Ability: Decodable {
-        
-        let name: String
-        let url: URL
-    }
+    public typealias CoreDataType = PokemonFeaturesModel
     
-    let ability: Ability
-}
-
-fileprivate struct RawEffect: Decodable {
-    
-    let effects: [Effect]
-    
-    enum CodingKeys: String, CodingKey {
-        
-        case effects = "effect_entries"
-    }
-    
-    struct Language: Decodable {
-        
-        let name: String
-    }
-    
-    struct Effect: Decodable {
-        
-        let entry: String
-        let language: Language
-        
-        enum CodingKeys: String, CodingKey {
-            
-            case entry = "effect"
-            case language
+    public init(coreDataModel: PokemonFeaturesModel) {
+        guard let abilities = coreDataModel.abilities, let images = coreDataModel.images else {
+            fatalError("Initialization Error")
         }
+        
+        self.abilities = abilities.compactMap { model -> PokemonAbility? in
+            if let model = model as? PokemonAbility.CoreDataType {
+                return PokemonAbility.init(coreDataModel: model)
+            }
+            return nil
+        }
+        
+        self.images = PokemonImages.init(coreDataModel: images)
     }
 }

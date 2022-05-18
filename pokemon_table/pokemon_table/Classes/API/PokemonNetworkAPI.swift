@@ -18,17 +18,19 @@ public enum PokemonApiError: Error {
     case instanceDeath
 }
 
-public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
+public class PokemonNetworkAPI: PokemonAPI {
 
     // MARK: -
     // MARK: Variables
 
+    private let service: NetworkService
     private let imageCashe: ImageCachable
     
     // MARK: -
     // MARK: Initialization
     
-    public init(imageCacher: ImageCachable) {
+    public init(service: NetworkService, imageCacher: ImageCachable) {
+        self.service = service
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
     }
     
@@ -36,7 +38,7 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
     // MARK: Public
     
     @discardableResult
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task? {
+    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
         guard count > 0 else {
             completion(.failure(.incorrectInputFormat))
             return nil
@@ -47,7 +49,7 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
             return nil
         }
 
-        return self.networkData(from: NetworkDataNode<[Pokemon]>.self, url: url) {
+        return self.networkData(from: NetworkDataNode.self, url: url) {
             completion($0)
         }
     }
@@ -70,7 +72,7 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
             return nil
         }
 
-        return Service.dataTask(url: url) { [weak self] result in
+        return self.service.dataTask(url: url) { [weak self] result in
             switch result {
             case .success(let imageData):
                 self?.imageCashe.insert(value: imageData, for: url)
@@ -89,7 +91,7 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
         completion: @escaping PokemonCompletion<T.ReturnedType>
     ) -> Task? where T : NetworkProcessable
     {
-        return Service.dataTask(url: url, modelType: model.self) { [weak self] result in
+        return self.service.dataTask(url: url, modelType: model.self) { [weak self] result in
             completion(self?.lift(response: result) ?? .failure(.instanceDeath))
         }
     }
@@ -111,7 +113,7 @@ public class PokemonNetworkAPI<Service: NetworkService>: PokemonAPI {
         url: URL,
         completion: @escaping PokemonCompletion<T.ReturnedType>) -> Task?
     {
-        return Service.dataTask(url: url, modelType: decodeDataType.self) { [weak self] result in
+        return self.service.dataTask(url: url, modelType: decodeDataType.self) { [weak self] result in
             completion(self?.lift(response: result) ?? .failure(.instanceDeath))
         }
     }

@@ -14,7 +14,7 @@ public protocol PokemonAPI {
     typealias PokemonCompletion<T> = (PokemonResult<T>) -> ()
 
     @discardableResult
-    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task?
+    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task?
     
     @discardableResult
     func image(

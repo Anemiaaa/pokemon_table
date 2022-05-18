@@ -13,12 +13,12 @@ final public class NetworkHelper: NetworkService {
     // MARK: -
     // MARK: Variables
     
-    private static var session = URLSession.shared
+    private var session = URLSession.shared
     
     // MARK: -
     // MARK: Public
     
-    public static func dataTask<ModelType: NetworkProcessable>(
+    public func dataTask<ModelType: NetworkProcessable>(
         url: URL,
         modelType: ModelType.Type,
         completion: @escaping NetworkResponse<ModelType.ReturnedType>
@@ -29,7 +29,7 @@ final public class NetworkHelper: NetworkService {
         }
     }
     
-    public static func dataTask(url: URL, completion: @escaping NetworkResponse<Data>) -> Task {
+    public func dataTask(url: URL, completion: @escaping NetworkResponse<Data>) -> Task {
         let dataTask = self.session.dataTask(with: url) { data, response, error in
               guard let data = data, error == nil else {
                   DispatchQueue.main.async {

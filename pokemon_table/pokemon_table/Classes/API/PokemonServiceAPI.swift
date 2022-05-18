@@ -22,7 +22,7 @@ public class PokemonServiceAPI<Service: DataSessionService>: PokemonAPI {
     // MARK: -
     // MARK: Public
     
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode<[Pokemon]>>) -> Task? {
+    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
         Service.request(model: Pokemon.self, params: count) |*| get { response in
             completion(self.lift(model: Pokemon.self, result: response))
         }

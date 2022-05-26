@@ -6,9 +6,17 @@
 //
 
 import Foundation
+import CoreData
 
-public struct PokemonAbility: Codable {
+public struct PokemonAbility: Codable, CoreDataStorable {
     
+    enum CodingKeys: String, CodingKey {
+        
+        case name
+        case url
+    }
+    
+    public var objectID: NSManagedObjectID?
     public let name: String
     public let effectURL: URL
 
@@ -18,6 +26,13 @@ public struct PokemonAbility: Codable {
         self.name = rawResponse.ability.name
         self.effectURL = rawResponse.ability.url
     }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(name, forKey: .name)
+        try container.encode(effectURL, forKey: .url)
+    }
 }
 
 // MARK: -
@@ -26,12 +41,15 @@ public struct PokemonAbility: Codable {
 extension PokemonAbility: CoreDataInitiable {
     
     public typealias CoreDataType = PokemonAbilityModel
-    
+
     public init(coreDataModel: PokemonAbilityModel) {
-        guard let name = coreDataModel.name, let url = coreDataModel.effectURL else {
+        guard let name = coreDataModel.name,
+              let url = coreDataModel.effectURL
+        else {
             fatalError("Initialization Error")
         }
         
+        self.objectID = coreDataModel.objectID
         self.name = name
         self.effectURL = url
     }

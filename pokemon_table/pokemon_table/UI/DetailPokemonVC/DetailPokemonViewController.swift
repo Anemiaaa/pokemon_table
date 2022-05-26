@@ -89,7 +89,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
             return
         }
         
-        self.api.data(url: self.pokemon.url, model: PokemonFeatures.self) { [weak self] result in
+        self.api.features(of: self.pokemon) { [weak self] result in
             self?.switchResult(result: result) { features in
                 self?.api.image(features: features, imageType: .frontDefault, size: imageSize, completion: { result in
                     self?.switchResult(result: result) {
@@ -101,7 +101,7 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
     }
     
     private func setAbilitiesToView(completion: @escaping ([PokemonAbility]) -> ()) {
-        self.api.data(url: self.pokemon.url, model: PokemonFeatures.self, completion: { [weak self] result in
+        self.api.features(of: self.pokemon) { [weak self] result in
             self?.switchResult(result: result) { features in
                 let abilities = features.abilities
 
@@ -111,11 +111,11 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
 
                 completion(abilities)
             }
-        })
+        }
     }
     
     private func insertToViewEntry(of ability: PokemonAbility, at stackIndex: Int) {
-        self.api.data(url: ability.effectURL, model: EffectEntry.self, completion: { [weak self] in
+        self.api.effect(of: ability) { [weak self] in
             self?.switchResult(result: $0) {
                 if let effectEntry = $0.entry {
                     self?.rootView?.insertLabel(at: stackIndex, text: effectEntry, rows: 0)
@@ -123,8 +123,9 @@ class DetailPokemonViewController: BaseViewController<DetailPokemonView> {
                     self?.showAlert(title: "Error", message: "Couldnt find ability entry")
                 }
             }
-        })
+        }
     }
+    
 }
 
 

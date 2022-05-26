@@ -6,8 +6,9 @@
 
 
 import Foundation
+import CoreData
 
-public struct Pokemon: Codable {
+public struct Pokemon: Codable, CoreDataStorable {
     
     enum CodingKeys: String, CodingKey {
         
@@ -18,7 +19,8 @@ public struct Pokemon: Codable {
     // MARK: -
     // MARK: Variables
     
-    public let id = UUID()
+    public var objectID: NSManagedObjectID?
+    public let id: UUID
     public let name: String
     public let url: URL
     
@@ -26,8 +28,17 @@ public struct Pokemon: Codable {
     // MARK: Initialization
     
     public init(name: String, url: URL) {
+        self.id = UUID()
         self.name = name
         self.url = url
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.id = UUID()
+        self.url = try values.decode(URL.self, forKey: .url)
+        self.name = try values.decode(String.self, forKey: .name)
     }
 }
 
@@ -56,10 +67,15 @@ extension Pokemon: CoreDataInitiable {
     public typealias CoreDataType = PokemonModel
     
     public init(coreDataModel: PokemonModel) {
-        guard let name = coreDataModel.name, let url = coreDataModel.url else {
+        guard let name = coreDataModel.name,
+              let url = coreDataModel.url,
+              let id = coreDataModel.id
+        else {
             fatalError("Initialization error")
         }
         
+        self.objectID = coreDataModel.objectID
+        self.id = id
         self.name = name
         self.url = url
     }

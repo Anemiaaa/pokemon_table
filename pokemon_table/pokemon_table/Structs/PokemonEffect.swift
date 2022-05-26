@@ -11,6 +11,10 @@ public struct EffectEntry: NetworkProcessable, Codable {
     
     public let entry: String?
     
+    public init(entry: String?) {
+        self.entry = entry
+    }
+    
     public init(from decoder: Decoder) throws {
         let rawResponse = try RawEffect(from: decoder)
         
@@ -20,6 +24,9 @@ public struct EffectEntry: NetworkProcessable, Codable {
         self.entry = effect?.entry
     }
 }
+
+// MARK: -
+// MARK: CoreDataInitiable
 
 fileprivate struct RawEffect: Decodable {
     

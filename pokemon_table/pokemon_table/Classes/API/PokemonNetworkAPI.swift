@@ -83,16 +83,16 @@ public class PokemonNetworkAPI: PokemonAPI {
             }
         }
     }
+
+    public func features(of pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
+        self.networkData(from: PokemonFeatures.self, url: pokemon.url) {
+            completion($0)
+        }
+    }
     
-    @discardableResult
-    public func data<T>(
-        url: URL,
-        model: T.Type,
-        completion: @escaping PokemonCompletion<T.ReturnedType>
-    ) -> Task? where T : NetworkProcessable
-    {
-        return self.service.dataTask(url: url, modelType: model.self) { [weak self] result in
-            completion(self?.lift(response: result) ?? .failure(.instanceDeath))
+    public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
+        self.networkData(from: EffectEntry.self, url: ability.effectURL) {
+            completion($0)
         }
     }
     

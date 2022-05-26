@@ -105,7 +105,7 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
         indexPaths.forEach { index in
             let pokemon = self.pokemons[index.row]
             
-            self.api.data(url: pokemon.url, model: PokemonFeatures.self) { [weak self] result in
+            self.api.features(of: pokemon) { [weak self] result in
                 self?.switchResult(result: result, unwrappedValue: { features in
                     let task = self?.api.image(
                         features: features,

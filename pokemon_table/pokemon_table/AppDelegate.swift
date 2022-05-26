@@ -23,11 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             imageCacher: ImageCacher(config: ConfigCacher.default)
         )
         
-//        let api = PokemonServiceAPI<UrlSessionService>(
-//            imageCacher: ImageCacher(config: ConfigCacher.default)
-//        )
-        
-        let manager = PokemonManager(api: api)
+        let manager = PokemonManager(
+            api: api,
+            coreDataManager: CoreDataManager(context: self.persistentContainer.viewContext)
+        )
         
         let navigation = NavigationControllerContainer()
         let coordinator = LandingCoordinator(api: manager, navigationController: navigation)

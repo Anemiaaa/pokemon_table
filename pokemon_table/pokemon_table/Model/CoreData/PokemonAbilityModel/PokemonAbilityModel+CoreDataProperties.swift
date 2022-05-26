@@ -2,7 +2,7 @@
 //  PokemonAbilityModel+CoreDataProperties.swift
 //  
 //
-//  Created by Yana on 18/05/2022.
+//  Created by Yana on 26/05/2022.
 //
 //
 
@@ -18,5 +18,5 @@ extension PokemonAbilityModel {
 
     @NSManaged public var effectURL: URL?
     @NSManaged public var name: String?
-
+    @NSManaged public var effectEntry: String?
 }

@@ -28,6 +28,12 @@ public class PokemonServiceAPI<Service: DataSessionService>: PokemonAPI {
         }
     }
     
+    public func features(of pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
+        self.data(url: pokemon.url, model: PokemonFeatures.self) {
+            completion($0)
+        }
+    }
+    
     public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
         self.data(url: ability.effectURL, model: EffectEntry.self) {
             completion($0)

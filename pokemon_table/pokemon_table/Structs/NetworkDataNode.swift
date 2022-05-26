@@ -6,13 +6,29 @@
 //
 
 import Foundation
+import CoreData
 
-public struct NetworkDataNode: NetworkProcessable
-{    
-    var count: Int
-    var next: URL?
-    var previous: URL?
-    var results: [Pokemon]
+public struct NetworkDataNode: CoreDataStorable
+{
+    public var objectID: NSManagedObjectID?
+    public var count: Int
+    public var next: URL?
+    public var previous: URL?
+    public var results: [Pokemon]
+}
+
+// MARK: -
+// MARK: NetworkProcessable
+
+extension NetworkDataNode: NetworkProcessable {
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case count
+        case next
+        case previous
+        case results
+    }
 }
 
 // MARK: -
@@ -32,7 +48,7 @@ extension NetworkDataNode: CoreDataInitiable {
             fatalError("Initialization problem")
         }
 
-        
+        self.objectID = coreDataModel.objectID
         self.count = Int(truncatingIfNeeded: coreDataModel.count)
         self.next = coreDataModel.next
         self.previous = coreDataModel.previous

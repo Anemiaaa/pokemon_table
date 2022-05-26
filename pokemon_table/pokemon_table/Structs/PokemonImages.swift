@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import CoreData
 
-public struct PokemonImages {
+public struct PokemonImages: CoreDataStorable {
     
+    public var objectID: NSManagedObjectID?
     public let backDefault: URL
     public let backFemale: URL?
     public let backShiny: URL
@@ -59,6 +61,7 @@ extension PokemonImages: CoreDataInitiable {
             fatalError("Initialization Error")
         }
         
+        self.objectID = coreDataModel.objectID
         self.backDefault = backDefault
         self.backFemale = coreDataModel.backFemale
         self.backShiny = backShiny

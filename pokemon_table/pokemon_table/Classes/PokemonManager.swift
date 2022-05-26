@@ -15,36 +15,37 @@ public class PokemonManager: PokemonAPI {
     // MARK: Variables
 
     private let api: PokemonAPI
-    private let context: NSManagedObjectContext?
+    private let coreDataManager: CoreDataManagerProtocol
 
     // MARK: -
     // MARK: Initialization
 
-    public init(api: PokemonAPI) {
+    public init(api: PokemonAPI, coreDataManager: CoreDataManagerProtocol) {
         self.api = api
-        self.context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
+        self.coreDataManager = coreDataManager
     }
 
     // MARK: -
     // MARK: Public
 
     public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
-        self.deleteAllData("PokemonModel")
         do {
-            if let coreDataNodes = try self.context?.fetch(NetworkDataNodeModel.fetchRequest()),
-               let coreDataNode = coreDataNodes.first
-            {
-                completion(.success(NetworkDataNode.init(coreDataModel: coreDataNode)))
+            let models: [NetworkDataNode] = try self.coreDataManager.fetch(modelType: NetworkDataNode.self)
+            
+            if let node = models.first {
+                completion(.success(node))
+                return nil
+            }
+        
+            return self.api.pokemons(count: count) { [weak self] result in
+                self?.save(result: result, completion: {
+                    completion($0)
+                })
             }
         }
         catch {
-            fatalError("Fetch Error")
-        }
-        
-        return self.api.pokemons(count: count) { [weak self] pokemons in
-            self?.save(pokemons: pokemons, completion: {
-                completion($0)
-            })
+            completion(.failure(.anotherError(error)))
+            return nil
         }
     }
     
@@ -58,71 +59,76 @@ public class PokemonManager: PokemonAPI {
         }
     }
     
-    public func data<T>(url: URL, model: T.Type, completion: @escaping PokemonCompletion<T.ReturnedType>) -> Task? where T : NetworkProcessable {
+    public func features(of pokemon: Pokemon, completion: @escaping PokemonCompletion<PokemonFeatures>) -> Task? {
         do {
-            return self.api.data(url: url, model: model) { [weak self] result in
-                let request = PokemonModel.fetchRequest()
-                
-                request.predicate = NSPredicate(format: "url == %@", url as CVarArg)
-                let pokemon = try? self?.context?.fetch(request).first
-                let result = try? result.get()
-    
-                
-                try? self?.context?.save()
+            let pokemonModel = try self.coreDataManager.fetch(model: pokemon)
+            
+            if let features = pokemonModel?.features {
+                completion(.success(PokemonFeatures.init(coreDataModel: features)))
+                return nil
+            }
+            
+            return self.api.features(of: pokemon) { result in
+                do {
+                    let feature = try result.get()
+                    pokemonModel?.features = PokemonFeaturesModel.init(model: feature, context: self.coreDataManager.context)
+                    
+                    try self.coreDataManager.saveIfNeeded()
+                    
+                    completion(result)
+                }
+                catch {
+                    completion(.failure(.anotherError(error)))
+                }
             }
         }
-        catch {}
+        catch {
+            completion(.failure(.anotherError(error)))
+        }
+        return nil
+    }
+    
+    public func effect(of ability: PokemonAbility, completion: @escaping PokemonCompletion<EffectEntry>) -> Task? {
+        do {
+            if let abilityModel = try self.coreDataManager.fetch(model: ability) {
+                if let entry = abilityModel.effectEntry {
+                    completion(.success(EffectEntry(entry: entry)))
+                    return nil
+                }
+                return self.api.effect(of: ability) { result in
+                    do {
+                        let entry = try result.get()
+                        abilityModel.effectEntry = entry.entry
+                        
+                        try self.coreDataManager.saveIfNeeded()
+                        
+                        completion(result)
+                    }
+                    catch {
+                        completion(.failure(.anotherError(error)))
+                    }
+                }
+            }
+        }
+        catch {
+            completion(.failure(.anotherError(error)))
+        }
+        return nil
     }
     
     // MARK: -
     // MARK: Private
     
-    private func save(pokemons: PokemonResult<NetworkDataNode>, completion: PokemonCompletion<NetworkDataNode>) {
+    private func save<T: CoreDataInitiable>(result: PokemonResult<T>, completion: PokemonCompletion<T>) {
         do {
-            let node = try pokemons.get()
+            let model = try result.get()
             
-            if let context = self.context {
-                let nodeModel = NetworkDataNodeModel(context: context)
-                
-                nodeModel.count = Int64(node.count)
-                nodeModel.next = node.next
-                nodeModel.previous = node.previous
-                
-                node.results.forEach { pokemon in
-                    let pokemonModel = PokemonModel(context: context)
-                    
-                    pokemonModel.id = pokemon.id
-                    pokemonModel.name = pokemon.name
-                    pokemonModel.url = pokemon.url
-                    
-                    nodeModel.addToResults(pokemonModel)
-                }
-                
-                try context.save()
-            }
+            try? self.coreDataManager.save(model: model)
+            
+            completion(.success(model))
         }
         catch {
-            fatalError("Error save to CoreData")
-        }
-        
-        completion(pokemons)
-    }
-    
-    private func deleteAllData(_ entity:String) {
-        guard let context = self.context else {
-            return
-        }
-        
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
-        fetchRequest.returnsObjectsAsFaults = false
-        do {
-            let results = try context.fetch(fetchRequest)
-            for object in results {
-                guard let objectData = object as? NSManagedObject else {continue}
-                context.delete(objectData)
-            }
-        } catch let error {
-            print("Detele all data in \(entity) error :", error)
+            completion(.failure(.anotherError(error)))
         }
     }
 }

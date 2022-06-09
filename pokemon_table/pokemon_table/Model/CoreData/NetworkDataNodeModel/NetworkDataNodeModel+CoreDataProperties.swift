@@ -2,7 +2,7 @@
 //  NetworkDataNodeModel+CoreDataProperties.swift
 //  
 //
-//  Created by Yana on 26/05/2022.
+//  Created by Yana on 09/06/2022.
 //
 //
 

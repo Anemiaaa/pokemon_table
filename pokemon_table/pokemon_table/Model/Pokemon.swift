@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public struct Pokemon: Codable, CoreDataStorable {
+public struct Pokemon: Codable {
     
     enum CodingKeys: String, CodingKey {
         
@@ -19,7 +19,6 @@ public struct Pokemon: Codable, CoreDataStorable {
     // MARK: -
     // MARK: Variables
     
-    public var objectID: NSManagedObjectID?
     public let id: UUID
     public let name: String
     public let url: URL
@@ -57,10 +56,8 @@ extension Pokemon: NetworkProcessable {
     }
 }
 
-
-
 // MARK: -
-// MARK: CoreDataInitiable
+// MARK: CoreDataStorable
 
 extension Pokemon: CoreDataInitiable {
 
@@ -74,7 +71,6 @@ extension Pokemon: CoreDataInitiable {
             fatalError("Initialization error")
         }
         
-        self.objectID = coreDataModel.objectID
         self.id = id
         self.name = name
         self.url = url

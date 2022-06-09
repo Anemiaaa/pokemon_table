@@ -2,7 +2,7 @@
 //  PokemonModel+CoreDataProperties.swift
 //  
 //
-//  Created by Yana on 26/05/2022.
+//  Created by Yana on 09/06/2022.
 //
 //
 
@@ -19,6 +19,8 @@ extension PokemonModel {
     @NSManaged public var id: UUID?
     @NSManaged public var name: String?
     @NSManaged public var url: URL?
+    @NSManaged public var numberInOrder: Int64
     @NSManaged public var features: PokemonFeaturesModel?
+    @NSManaged public var parent: NetworkDataNodeModel?
 
 }

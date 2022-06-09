@@ -26,10 +26,10 @@ public class CoreDataManager: CoreDataManagerProtocol {
     // MARK: -
     // MARK: Public
     
-    public func save<T: CoreDataInitiable>(model: T) throws {
-        let fetchModel = try self.fetch(model: model)
+    public func save<T: CoreDataInitiable>(model: T, request: NSFetchRequest<T.CoreDataType>) throws {
+        let fetchModels = try self.fetch(request: request)
         
-        if fetchModel == nil,
+        if fetchModels.isEmpty,
            let model = model as? T.CoreDataType.ModelType
         {
             let _ = T.CoreDataType.init(
@@ -47,47 +47,15 @@ public class CoreDataManager: CoreDataManagerProtocol {
         }
     }
     
-    public func fetch<T: CoreDataInitiable>(modelType: T.Type) throws -> [T] {
-        let coreDataModels: [T.CoreDataType] = try self.fetch(modelType: modelType)
+    public func fetch<T: CoreDataInitiable>(modelType: T.Type, request: NSFetchRequest<T.CoreDataType>) throws -> [T] {
+        let coreDataModels = try self.fetch(request: request)
         
         return coreDataModels.compactMap { coreDataModel -> T in
             T.init(coreDataModel: coreDataModel)
         }
     }
     
-    public func fetch<T: CoreDataInitiable>(modelType: T.Type) throws -> [T.CoreDataType] {
-        let fetchResult = try self.context.fetch(T.CoreDataType.fetchRequest())
-        
-        if fetchResult.count == 0 {
-            return []
-        }
-        
-        return fetchResult.compactMap { coreDataModel -> T.CoreDataType? in
-            coreDataModel as? T.CoreDataType
-        }
+    public func fetch<T: NSManagedObject>(request: NSFetchRequest<T>) throws -> [T] {
+        return try self.context.fetch(request)
     }
-    
-    public func fetch<T: CoreDataInitiable>(model: T) throws -> T.CoreDataType?  {
-        guard let id = model.objectID else {
-            return nil
-        }
-        return self.context.object(with: id) as? T.CoreDataType
-    }
-    
-    // MARK: -
-    // MARK: Private
-    
-//    private func deleteAllData(_ entity: String) {
-//        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
-//        fetchRequest.returnsObjectsAsFaults = false
-//        do {
-//            let results = try context.fetch(fetchRequest)
-//            for object in results {
-//                guard let objectData = object as? NSManagedObject else {continue}
-//                context.delete(objectData)
-//            }
-//        } catch let error {
-//            print("Detele all data in \(entity) error :", error)
-//        }
-//    }
 }

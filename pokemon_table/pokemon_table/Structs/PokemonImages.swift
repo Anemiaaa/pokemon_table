@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public struct PokemonImages: CoreDataStorable {
+public struct PokemonImages: Codable {
     
     public var objectID: NSManagedObjectID?
     public let backDefault: URL
@@ -19,9 +19,6 @@ public struct PokemonImages: CoreDataStorable {
     public let frontFemale: URL?
     public let frontShiny: URL
     public let frontShinyFemale: URL?
-}
-
-extension PokemonImages: Codable {
     
     enum CodingKeys: String, CodingKey {
         
@@ -53,22 +50,22 @@ extension PokemonImages: CoreDataInitiable {
     public typealias CoreDataType = PokemonImagesModel
     
     public init(coreDataModel: PokemonImagesModel) {
-        guard let backDefault = coreDataModel.backDefault,
-              let backShiny = coreDataModel.backShiny,
-              let frontDefault = coreDataModel.frontDefault,
-              let frontShiny = coreDataModel.frontShiny
+        guard let backDefault = coreDataModel.backDefault?.url,
+              let backShiny = coreDataModel.backShiny?.url,
+              let frontDefault = coreDataModel.frontDefault?.url,
+              let frontShiny = coreDataModel.frontShiny?.url
         else {
             fatalError("Initialization Error")
         }
         
         self.objectID = coreDataModel.objectID
         self.backDefault = backDefault
-        self.backFemale = coreDataModel.backFemale
+        self.backFemale = coreDataModel.backFemale?.url
         self.backShiny = backShiny
-        self.backShinyFemale = coreDataModel.backShinyFemale
+        self.backShinyFemale = coreDataModel.backShinyFemale?.url
         self.frontDefault = frontDefault
-        self.frontFemale = coreDataModel.frontFemale
+        self.frontFemale = coreDataModel.frontFemale?.url
         self.frontShiny = frontShiny
-        self.frontShinyFemale = coreDataModel.frontShinyFemale
+        self.frontShinyFemale = coreDataModel.frontShinyFemale?.url
     }
 }

@@ -2,7 +2,7 @@
 //  PokemonAbilityModel+CoreDataClass.swift
 //  
 //
-//  Created by Yana on 26/05/2022.
+//  Created by Yana on 09/06/2022.
 //
 //
 
@@ -13,7 +13,7 @@ import CoreData
 public class PokemonAbilityModel: NSManagedObject, ManagedObject {
 
     public typealias ModelType = PokemonAbility
-    
+
     public func setFields(model: PokemonAbility, context: NSManagedObjectContext) {
         self.name = model.name
         self.effectURL = model.effectURL

@@ -12,13 +12,11 @@ public protocol CoreDataManagerProtocol {
     
     var context: NSManagedObjectContext { get }
     
-    func save<T: CoreDataInitiable>(model: T) throws
-    
     func saveIfNeeded() throws
     
-    func fetch<T: CoreDataInitiable>(modelType: T.Type) throws -> [T]
+    func save<T: CoreDataInitiable>(model: T, request: NSFetchRequest<T.CoreDataType>) throws
     
-    func fetch<T: CoreDataInitiable>(modelType: T.Type) throws -> [T.CoreDataType]
+    func fetch<T: CoreDataInitiable>(modelType: T.Type, request: NSFetchRequest<T.CoreDataType>) throws -> [T]
     
-    func fetch<T: CoreDataInitiable>(model: T) throws -> T.CoreDataType?
+    func fetch<T: NSManagedObject>(request: NSFetchRequest<T>) throws -> [T]
 }

@@ -2,7 +2,7 @@
 //  PokemonImagesModel+CoreDataProperties.swift
 //  
 //
-//  Created by Yana on 26/05/2022.
+//  Created by Yana on 09/06/2022.
 //
 //
 
@@ -16,13 +16,14 @@ extension PokemonImagesModel {
         return NSFetchRequest<PokemonImagesModel>(entityName: "PokemonImagesModel")
     }
 
-    @NSManaged public var backDefault: URL?
-    @NSManaged public var backFemale: URL?
-    @NSManaged public var backShiny: URL?
-    @NSManaged public var backShinyFemale: URL?
-    @NSManaged public var frontDefault: URL?
-    @NSManaged public var frontFemale: URL?
-    @NSManaged public var frontShiny: URL?
-    @NSManaged public var frontShinyFemale: URL?
+    @NSManaged public var backDefault: ImageDataModel?
+    @NSManaged public var backFemale: ImageDataModel?
+    @NSManaged public var backShiny: ImageDataModel?
+    @NSManaged public var backShinyFemale: ImageDataModel?
+    @NSManaged public var frontDefault: ImageDataModel?
+    @NSManaged public var frontFemale: ImageDataModel?
+    @NSManaged public var frontShiny: ImageDataModel?
+    @NSManaged public var frontShinyFemale: ImageDataModel?
+    @NSManaged public var parent: PokemonFeaturesModel?
 
 }

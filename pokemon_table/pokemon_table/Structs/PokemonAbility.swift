@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public struct PokemonAbility: Codable, CoreDataStorable {
+public struct PokemonAbility: Codable {
     
     enum CodingKeys: String, CodingKey {
         

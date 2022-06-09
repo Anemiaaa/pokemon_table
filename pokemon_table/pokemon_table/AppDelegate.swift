@@ -25,7 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let manager = PokemonManager(
             api: api,
-            coreDataManager: CoreDataManager(context: self.persistentContainer.viewContext)
+            coreDataManager: CoreDataManager(context: self.persistentContainer.viewContext),
+            imageCacher: ImageCacher(config: ConfigCacher.default)
         )
         
         let navigation = NavigationControllerContainer()

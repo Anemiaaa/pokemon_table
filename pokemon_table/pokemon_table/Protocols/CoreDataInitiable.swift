@@ -8,22 +8,16 @@
 import Foundation
 import CoreData
 
-public protocol CoreDataInitiable: CoreDataStorable {
+public protocol CoreDataInitiable {
     
     associatedtype CoreDataType: ManagedObject
     
     init(coreDataModel: CoreDataType)
 }
 
-
-public protocol CoreDataStorable {
-    
-    var objectID: NSManagedObjectID? { get set }
-}
-
 public protocol ManagedObject: NSManagedObject {
     
-    associatedtype ModelType: CoreDataStorable
+    associatedtype ModelType: CoreDataInitiable
     
     func setFields(model: ModelType, context: NSManagedObjectContext)
 }

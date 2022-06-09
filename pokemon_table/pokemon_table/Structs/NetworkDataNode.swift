@@ -8,19 +8,13 @@
 import Foundation
 import CoreData
 
-public struct NetworkDataNode: CoreDataStorable
+public struct NetworkDataNode: NetworkProcessable
 {
     public var objectID: NSManagedObjectID?
     public var count: Int
     public var next: URL?
     public var previous: URL?
     public var results: [Pokemon]
-}
-
-// MARK: -
-// MARK: NetworkProcessable
-
-extension NetworkDataNode: NetworkProcessable {
     
     enum CodingKeys: String, CodingKey {
         
@@ -39,11 +33,11 @@ extension NetworkDataNode: CoreDataInitiable {
     public typealias CoreDataType = NetworkDataNodeModel
     
     public init(coreDataModel: NetworkDataNodeModel) {
-        guard let results: [Pokemon] = coreDataModel.results?.compactMap ({ model -> Pokemon? in
-            if let model = model as? Pokemon.CoreDataType {
-                return Pokemon.init(coreDataModel: model)
-            }
-            return nil
+        guard let results: [Pokemon] = coreDataModel.results?
+            .compactMap({ pokemon -> PokemonModel? in pokemon as? PokemonModel})
+            .sorted(by: { $0.numberInOrder < $1.numberInOrder})
+            .compactMap ({ model -> Pokemon? in
+                    Pokemon.init(coreDataModel: model)
         }) else {
             fatalError("Initialization problem")
         }

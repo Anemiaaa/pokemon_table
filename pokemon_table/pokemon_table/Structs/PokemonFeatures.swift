@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import UIKit
 
-public struct PokemonFeatures: Codable, CoreDataStorable {
+public struct PokemonFeatures: Codable {
     
     public var objectID: NSManagedObjectID?
     public let abilities: [PokemonAbility]

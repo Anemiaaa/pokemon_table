@@ -8,6 +8,7 @@
         <attribute name="count" optional="YES" attributeType="Integer 64" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="next" optional="YES" attributeType="URI"/>
         <attribute name="previous" optional="YES" attributeType="URI"/>
+        <attribute name="url" optional="YES" attributeType="URI"/>
         <relationship name="results" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PokemonModel" inverseName="parent" inverseEntity="PokemonModel"/>
     </entity>
     <entity name="PokemonAbilityModel" representedClassName=".PokemonAbilityModel" syncable="YES">
@@ -41,7 +42,7 @@
         <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NetworkDataNodeModel" inverseName="results" inverseEntity="NetworkDataNodeModel"/>
     </entity>
     <elements>
-        <element name="NetworkDataNodeModel" positionX="0" positionY="108" width="128" height="89"/>
+        <element name="NetworkDataNodeModel" positionX="0" positionY="108" width="128" height="104"/>
         <element name="PokemonAbilityModel" positionX="-36" positionY="36" width="128" height="89"/>
         <element name="PokemonFeaturesModel" positionX="-54" positionY="9" width="128" height="74"/>
         <element name="PokemonImagesModel" positionX="-18" positionY="45" width="128" height="164"/>

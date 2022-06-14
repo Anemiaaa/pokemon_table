@@ -19,14 +19,16 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     // MARK: -
     // MARK: Variables
     
+    private var pokemons: [Pokemon] = []
+    
+    private var nextPage: URL?
+    
+    private var cancelablePokemonImageTasks: [UUID: Task] = [:]
+    
     public var events: Observable<PokemonListControllerStates> {
         self.eventsEmitter.asObserver()
     }
     private let eventsEmitter = PublishSubject<PokemonListControllerStates>()
-    
-    private var pokemons: [Pokemon] = []
-    
-    private var cancelablePokemonImageTasks: [UUID: Task] = [:]
     
     private let api: PokemonAPI
     private let cellImageType = PokemonImageTypes.frontDefault
@@ -50,24 +52,20 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     override func viewDidLoad() {
         super.viewDidLoad()
      
-        self.addPokemons(count: 50, completion: nil)
+        self.loadPokemons()
     }
 
     
     // MARK: -
     // MARK: Public
     
-    public func addPokemons(count: Int, completion: F.PokemonCompletion<[Pokemon], PokemonApiError>?) {
-        self.api.pokemons(count: count) { result in
-            switch result {
-            case .success(let node):
-                self.pokemons = node.results
-                
-                completion?(.success(node.results))
-                
-                self.rootView?.update()
-            case .failure(let error):
-                self.showAlert(title: "Network Error", error: error)
+    public func loadPokemons() {
+        self.api.pokemons(page: 1) { result in
+            self.switchResult(result: result) { node in
+                self.pokemons.append(contentsOf: node.results)
+                self.nextPage = node.next
+
+                self.rootView?.update(pokemons: node.results)
             }
         }
     }
@@ -81,19 +79,21 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
             case .pokemons(let completion):
                 completion(self?.pokemons ?? [])
                 
-            case .image(indexPaths: let indexPaths, let imageSize, let completion):
-                self?.imageBind(indexPaths: indexPaths, imageSize: imageSize, completion: completion)
+            case .image(rows: let rows, let imageSize, let completion):
+                self?.imageBind(rows: rows, imageSize: imageSize, completion: completion)
 
             case .clickOn(indexRow: let indexRow):
                 if let pokemon =  self?.pokemons[indexRow] {
                     self?.eventsEmitter.onNext(.detail(pokemon: pokemon))
                 }
-            case .cellEndDisplaying(indexPath: let indexPath):
-                guard let pokemon = self?.pokemons[indexPath.row] else {
+            case .cellEndDisplaying(row: let row):
+                guard let pokemon = self?.pokemons[row] else {
                     return
                 }
                 
                 self?.cancelablePokemonImageTasks[pokemon.id]?.cancel()
+            case .loadNextPage:
+                self?.loadNextPage()
             }
         }.disposed(by: disposeBag)
     }
@@ -101,9 +101,9 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
     // MARK: -
     // MARK: Private
     
-    private func imageBind(indexPaths: [IndexPath], imageSize: CGSize, completion: ((UIImage) -> ())?) {
-        indexPaths.forEach { index in
-            let pokemon = self.pokemons[index.row]
+    private func imageBind(rows: [Int], imageSize: CGSize, completion: ((UIImage) -> ())?) {
+        rows.forEach { index in
+            let pokemon = self.pokemons[index]
             
             self.api.features(of: pokemon) { [weak self] result in
                 self?.switchResult(result: result, unwrappedValue: { features in
@@ -121,7 +121,20 @@ class PokemonListViewController: BaseViewController<PokemonListView> {
         }
     }
     
-    
+    private func loadNextPage() {
+        if let page = nextPage {
+            self.api.pokemons(url: page) { [weak self] result in
+                self?.switchResult(result: result) { node in
+                    let pokemons = node.results
+                    
+                    self?.pokemons.append(contentsOf: pokemons)
+                    self?.nextPage = node.next
+                    
+                    self?.rootView?.update(pokemons: pokemons)
+                }
+            }
+        }
+    }
     
 }
 

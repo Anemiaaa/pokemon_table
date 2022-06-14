@@ -23,14 +23,17 @@ public class PokemonNetworkAPI: PokemonAPI {
     // MARK: -
     // MARK: Variables
 
+    public let nodeSettings: NodeSettings
+    
     private let service: NetworkService
     private let imageCashe: ImageCachable
     
     // MARK: -
     // MARK: Initialization
     
-    public init(service: NetworkService, imageCacher: ImageCachable) {
+    public init(nodeSettings: NodeSettings, service: NetworkService, imageCacher: ImageCachable) {
         self.service = service
+        self.nodeSettings = nodeSettings
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
     }
     
@@ -38,18 +41,29 @@ public class PokemonNetworkAPI: PokemonAPI {
     // MARK: Public
     
     @discardableResult
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
-        guard count > 0 else {
+    public func pokemons(url: URL, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        return self.networkData(from: NetworkDataNode.self, url: url) {
+            completion($0)
+        }
+    }
+    
+    @discardableResult
+    public func pokemons(page: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        guard self.nodeSettings.count > 0, page > 0 else {
             completion(.failure(.incorrectInputFormat))
             return nil
         }
-        guard let url = Pokemon.url?.append(count)
-        else {
+        guard let baseURL = Pokemon.url else {
             completion(.failure(.urlInit))
             return nil
         }
-
-        return self.networkData(from: NetworkDataNode.self, url: url) {
+        
+        guard let url = self.urlComponents(page: page, baseURL: baseURL)?.url else {
+            completion(.failure(.urlInit))
+            return nil
+        }
+        
+        return self.pokemons(url: url) {
             completion($0)
         }
     }

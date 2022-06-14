@@ -8,22 +8,42 @@
 import Foundation
 import UIKit
 
+struct PokemonBodyParams: BodyParamsType {
+    
+    var rawValues: [String : Int]
+}
+
 public class PokemonServiceAPI<Service: DataSessionService>: PokemonAPI {
+    
+    // MARK: -
+    // MARK: Variables
+    
+    public let nodeSettings: NodeSettings
     
     private let imageCashe: ImageCachable
     
     // MARK: -
     // MARK: Initialization
     
-    public init(imageCacher: ImageCachable) {
+    public init(imageCacher: ImageCachable, nodeSettings: NodeSettings) {
         self.imageCashe = ImageCacher(config: ConfigCacher.default)
+        self.nodeSettings = nodeSettings
     }
     
     // MARK: -
     // MARK: Public
     
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
-        Service.request(model: Pokemon.self, params: count) |*| get { response in
+    public func pokemons(url: URL, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        self.data(url: url, model: Pokemon.self) {
+            completion($0)
+        }
+    }
+    
+    public func pokemons(page: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        let count = self.nodeSettings.count
+        let bodyParams = PokemonBodyParams(rawValues: ["limit": count, "offset": count * (page - 1)])
+
+        return Service.request(model: Pokemon.self, params:  bodyParams) |*| get { response in
             completion(self.lift(model: Pokemon.self, result: response))
         }
     }

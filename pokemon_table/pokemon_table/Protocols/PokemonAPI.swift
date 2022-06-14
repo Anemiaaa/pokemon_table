@@ -8,13 +8,27 @@
 import Foundation
 import UIKit
 
+public struct NodeSettings {
+    
+    let count: Int
+    
+    public static var `default`: NodeSettings {
+        NodeSettings(count: 50)
+    }
+}
+
 public protocol PokemonAPI {
     
     typealias PokemonResult<T> = Result<T, PokemonApiError>
     typealias PokemonCompletion<T> = (PokemonResult<T>) -> ()
 
+    var nodeSettings: NodeSettings { get }
+    
     @discardableResult
-    func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task?
+    func pokemons(url: URL, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task?
+    
+    @discardableResult
+    func pokemons(page: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task?
     
     @discardableResult
     func image(
@@ -55,6 +69,21 @@ extension PokemonAPI {
             return images.frontShinyFemale
         }
     }
+    
+    public func urlComponents(page: Int, baseURL: URL) -> URLComponents? {
+        let count = self.nodeSettings.count
+        let offset = count * (page - 1)
+        
+        let queryItems = [
+            URLQueryItem(name: "limit", value: String(count)),
+            URLQueryItem(name: "offset", value: String(offset))
+        ]
+        var urlComps = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
+        urlComps?.queryItems = queryItems
+        
+        return urlComps
+    }
+    
     
     private func lift<T, ErrorType>(response: Result<T, ErrorType>) -> PokemonResult<T> {
         switch response {

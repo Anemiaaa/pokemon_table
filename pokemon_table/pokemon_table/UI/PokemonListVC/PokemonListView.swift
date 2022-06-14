@@ -12,11 +12,13 @@ public enum PokemonListViewStates {
     
     case pokemons(_ completion: ([Pokemon]) -> ())
     
-    case image(indexPaths: [IndexPath], imageSize: CGSize, _ completion: ((UIImage) -> ())?)
+    case image(rows: [Int], imageSize: CGSize, _ completion: ((UIImage) -> ())?)
     
     case clickOn(indexRow: Int)
     
-    case cellEndDisplaying(indexPath: IndexPath)
+    case cellEndDisplaying(row: Int)
+    
+    case loadNextPage
 }
 
 class PokemonListView: BaseView {
@@ -41,12 +43,9 @@ class PokemonListView: BaseView {
         }.disposed(by: disposeBag)
     }
     
-    public func update() {
-        self.statesHandler.onNext(.pokemons({ pokemons in
-            let section = Section(cell: PokemonListTableCell.self, models: pokemons)
-            self.adapter.sections.append(section)
-            
-        }))
+    public func update(pokemons: [Pokemon]) {
+        let section = Section(cell: PokemonListTableCell.self, models: pokemons)
+        self.adapter.sections.append(section)
     }
     
     // MARK: -
@@ -54,22 +53,23 @@ class PokemonListView: BaseView {
     
     private func handle(events: TableEvents) {
         switch events {
-        case .didSelect(indexPath: let indexPath):
-            self.statesHandler.onNext(.clickOn(indexRow: indexPath.row))
+        case .didSelect(row: let result):
+            self.statesHandler.onNext(.clickOn(indexRow: result.row))
             
-            self.tableView?.deselectRow(at: indexPath, animated: true)
-            
-        case .handleCellEvents(at: let indexPath, events: let events):
+            result.completion()
+        case .handleCellEvents(at: let index, events: let events):
             if let events = events as? PokemonListCellEvents {
                 switch events {
                 case .image(let size, let completion):
-                    self.statesHandler.onNext(.image(indexPaths: [indexPath], imageSize: size, { image in
+                    self.statesHandler.onNext(.image(rows: [index], imageSize: size, { image in
                         completion(image)
                     }))
                 }
             }
-        case .didEndDisplaying(indexPath: let indexPath):
-            self.statesHandler.onNext(.cellEndDisplaying(indexPath: indexPath))
+        case .didEndDisplaying(row: let row):
+            self.statesHandler.onNext(.cellEndDisplaying(row: row))
+        case .loadNextPage:
+            self.statesHandler.onNext(.loadNextPage)
         }
     }
 }

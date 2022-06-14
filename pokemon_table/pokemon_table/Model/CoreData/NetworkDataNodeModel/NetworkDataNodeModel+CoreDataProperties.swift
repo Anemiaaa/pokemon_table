@@ -2,7 +2,7 @@
 //  NetworkDataNodeModel+CoreDataProperties.swift
 //  
 //
-//  Created by Yana on 09/06/2022.
+//  Created by Yana on 14/06/2022.
 //
 //
 
@@ -19,6 +19,7 @@ extension NetworkDataNodeModel {
     @NSManaged public var count: Int64
     @NSManaged public var next: URL?
     @NSManaged public var previous: URL?
+    @NSManaged public var url: URL?
     @NSManaged public var results: NSSet?
 
 }

@@ -49,7 +49,7 @@ extension Pokemon: NetworkProcessable {
     public typealias ReturnedType = NetworkDataNode
     
     public static var url: URL? {
-        if let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=") {
+        if let url = URL(string: "https://pokeapi.co/api/v2/pokemon") {
             return url
         }
         return nil

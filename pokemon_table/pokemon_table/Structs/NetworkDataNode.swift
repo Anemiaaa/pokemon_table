@@ -10,7 +10,6 @@ import CoreData
 
 public struct NetworkDataNode: NetworkProcessable
 {
-    public var objectID: NSManagedObjectID?
     public var count: Int
     public var next: URL?
     public var previous: URL?
@@ -42,7 +41,6 @@ extension NetworkDataNode: CoreDataInitiable {
             fatalError("Initialization problem")
         }
 
-        self.objectID = coreDataModel.objectID
         self.count = Int(truncatingIfNeeded: coreDataModel.count)
         self.next = coreDataModel.next
         self.previous = coreDataModel.previous

@@ -14,6 +14,8 @@ public class PokemonManager: PokemonAPI {
     // MARK: -
     // MARK: Variables
 
+    public var nodeSettings: NodeSettings
+    
     private let api: PokemonAPI
     private let coreDataManager: CoreDataManagerProtocol
     private let imageCacher: ImageCacher
@@ -25,34 +27,48 @@ public class PokemonManager: PokemonAPI {
         self.api = api
         self.coreDataManager = coreDataManager
         self.imageCacher = imageCacher
+        self.nodeSettings = self.api.nodeSettings
     }
 
     // MARK: -
     // MARK: Public
 
-    public func pokemons(count: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
-        do {
-            let request = NetworkDataNodeModel.fetchRequest()
-
-            let nodes = try self.coreDataManager.fetch(modelType: NetworkDataNode.self, request: request)
-            
-            if let node = nodes.first {
-                completion(.success(node))
-                return nil
-            }
-        
-            return self.api.pokemons(count: count) { [weak self] result in
-                if let node = try? result.get() {
-                    try? self?.coreDataManager.save(model: node, request: request)
-                    
-                    completion(result)
-                }
-                
-            }
-        }
-        catch {
-            completion(.failure(.anotherError(error)))
+    public func pokemons(page: Int, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        guard let baseURL = Pokemon.url,
+              let url = self.urlComponents(page: page, baseURL: baseURL)?.url
+        else {
+            completion(.failure(.urlInit))
             return nil
+        }
+        return self.pokemons(url: url) {
+            completion($0)
+        }
+    }
+    
+    public func pokemons(url: URL, completion: @escaping PokemonCompletion<NetworkDataNode>) -> Task? {
+        let request = NetworkDataNodeModel.fetchRequest()
+        request.predicate = NSPredicate(format: "url == %@", url as CVarArg)
+
+        let nodes = try? self.coreDataManager.fetch(modelType: NetworkDataNode.self, request: request)
+        
+        if let node = nodes?.first {
+            completion(.success(node))
+            return nil
+        }
+        
+        return self.api.pokemons(url: url) { [weak self] result in
+            switch result {
+            case .success(let node):
+                if let context = self?.coreDataManager.context {
+                    let model = NetworkDataNodeModel(model: node, context: context)
+                    model.url = url
+                    
+                    try? self?.coreDataManager.saveIfNeeded()
+                }
+                completion(.success(node))
+            case .failure(let error):
+                completion(.failure(.anotherError(error)))
+            }
         }
     }
     
@@ -119,15 +135,14 @@ public class PokemonManager: PokemonAPI {
                 return nil
             }
             return self.api.effect(of: ability) { result in
-                do {
-                    let entry = try result.get()
+                switch result {
+                case .success(let entry):
                     abilityModel.effectEntry = entry.entry
                     
-                    try self.coreDataManager.saveIfNeeded()
+                    try? self.coreDataManager.saveIfNeeded()
                     
-                    completion(result)
-                }
-                catch {
+                    completion(.success(entry))
+                case .failure(let error):
                     completion(.failure(.anotherError(error)))
                 }
             }

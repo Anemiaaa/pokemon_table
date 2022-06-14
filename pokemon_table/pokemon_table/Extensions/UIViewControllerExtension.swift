@@ -11,7 +11,10 @@ import UIKit
 extension UIViewController {
 
     func showAlert(title: String, error: Error) {
-        
+        if let err = error as? URLError, err.code  == URLError.Code.notConnectedToInternet {
+            self.showAlert(title: "No Internet connection!", message: nil)
+            return 
+        }
         self.showAlert(title: title, message: error.localizedDescription)
     }
     

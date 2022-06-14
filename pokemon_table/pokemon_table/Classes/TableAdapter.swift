@@ -11,12 +11,13 @@ import RxSwift
 
 public enum TableEvents {
     
-    case didSelect(indexPath: IndexPath)
-    case didEndDisplaying(indexPath: IndexPath)
-    case handleCellEvents(at: IndexPath, events: Any)
+    case didSelect(row: Int, completion: () -> ())
+    case didEndDisplaying(row: Int)
+    case handleCellEvents(at: Int, events: Any)
+    case loadNextPage
 }
 
-public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching {
+public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate {
     
     // MARK: -
     // MARK: Variables
@@ -71,12 +72,14 @@ public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource,
     // MARK: UITableViewDelegate
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.statesHandler.onNext(.didSelect(indexPath: indexPath))
+        self.statesHandler.onNext(.didSelect(row: self.row(for: indexPath), completion: {
+            self.tableView?.deselectRow(at: indexPath, animated: true)
+        }))
     }
     
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         self.prefetchCells.removeValue(forKey: indexPath)
-        self.statesHandler.onNext(.didEndDisplaying(indexPath: indexPath))
+        self.statesHandler.onNext(.didEndDisplaying(row: self.row(for: indexPath)))
     }
     
     // MARK: -
@@ -90,6 +93,22 @@ public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource,
     }
     
     // MARK: -
+    // MARK: UIScrollViewDelegate
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let tableView = tableView else {
+            return
+        }
+
+        let position = scrollView.contentOffset.y
+        let screenHeight = scrollView.frame.size.height
+        
+        if position > tableView.contentSize.height - screenHeight - 100 {
+            self.statesHandler.onNext(.loadNextPage)
+        }
+    }
+    
+    // MARK: -
     // MARK: Private
     
     private func cell(tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
@@ -99,10 +118,18 @@ public class TableAdapter: NSObject, UITableViewDelegate, UITableViewDataSource,
         
         if let cell = cell as? AnyCellType {
             cell.fill(with: section.models[indexPath.row], eventHandler: { [weak self] events in
-                self?.statesHandler.onNext(.handleCellEvents(at: indexPath, events: events))
+                if let row = self?.row(for: indexPath) {
+                    self?.statesHandler.onNext(.handleCellEvents(at: row, events: events))
+                }
             })
         }
         
         return cell
+    }
+    
+    private func row(for indexPath: IndexPath) -> Int {
+        let sectionIndex = indexPath.section
+        
+        return sectionIndex * self.sections[sectionIndex].models.count + indexPath.row
     }
 }
